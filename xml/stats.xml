@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="server_stats.xsl"?>
+<serverpage>
+  <status>
+    <platform>Ascent r1187/Release-Win32-X86</platform>
+    <uptime>0 days, 3 hours, 35 minutes, 4 seconds</uptime>
+    <oplayers>11</oplayers>
+    <cpu>1.09</cpu>
+    <qplayers>0</qplayers>
+    <ram>319.414</ram>
+    <avglat>185.000</avglat>
+    <threads>13</threads>
+    <gmcount>1</gmcount>
+    <lastupdate>Fri Aug 24 22:20:15 2007
+</lastupdate>
+    <alliance>5</alliance>
+    <horde>6</horde>
+    <acceptedconns>64</acceptedconns>
+    <peakcount>13</peakcount>
+    <wdbquerysize>0</wdbquerysize>
+    <cdbquerysize>0</cdbquerysize>
+  </status>
+  <instances>
+	<instance>
+	  <map>0</map>
+	  <maptype>0</maptype>
+	  <players>10</players>
+	  <maxplayers>0</maxplayers>
+	  <state>ACTIVE</state>
+	  <creationtime>Fri Aug 24 18:45:07 2007
+</creationtime>
+	  <expirytime>Never</expirytime>
+	</instance>
+	<instance>
+	  <map>1</map>
+	  <maptype>0</maptype>
+	  <players>1</players>
+	  <maxplayers>0</maxplayers>
+	  <state>ACTIVE</state>
+	  <creationtime>Fri Aug 24 18:45:10 2007
+</creationtime>
+	  <expirytime>Never</expirytime>
+	</instance>
+	<instance>
+	  <map>169</map>
+	  <maptype>0</maptype>
+	  <players>0</players>
+	  <maxplayers>100</maxplayers>
+	  <state>IDLE</state>
+	  <creationtime>Fri Aug 24 18:45:06 2007
+</creationtime>
+	  <expirytime>Never</expirytime>
+	</instance>
+	<instance>
+	  <map>369</map>
+	  <maptype>0</maptype>
+	  <players>0</players>
+	  <maxplayers>0</maxplayers>
+	  <state>IDLE</state>
+	  <creationtime>Fri Aug 24 18:45:09 2007
+</creationtime>
+	  <expirytime>Never</expirytime>
+	</instance>
+	<instance>
+	  <map>449</map>
+	  <maptype>0</maptype>
+	  <players>0</players>
+	  <maxplayers>0</maxplayers>
+	  <state>IDLE</state>
+	  <creationtime>Fri Aug 24 18:45:09 2007
+</creationtime>
+	  <expirytime>Never</expirytime>
+	</instance>
+	<instance>
+	  <map>450</map>
+	  <maptype>0</maptype>
+	  <players>0</players>
+	  <maxplayers>0</maxplayers>
+	  <state>IDLE</state>
+	  <creationtime>Fri Aug 24 18:45:06 2007
+</creationtime>
+	  <expirytime>Never</expirytime>
+	</instance>
+	<instance>
+	  <map>530</map>
+	  <maptype>0</maptype>
+	  <players>0</players>
+	  <maxplayers>0</maxplayers>
+	  <state>IDLE</state>
+	  <creationtime>Fri Aug 24 18:45:09 2007
+</creationtime>
+	  <expirytime>Never</expirytime>
+	</instance>
+	<instance>
+	  <map>533</map>
+	  <maptype>0</maptype>
+	  <players>0</players>
+	  <maxplayers>40</maxplayers>
+	  <state>IDLE</state>
+	  <creationtime>Fri Aug 24 18:45:06 2007
+</creationtime>
+	  <expirytime>Never</expirytime>
+	</instance>
+	<instance>
+	  <map>568</map>
+	  <maptype>0</maptype>
+	  <players>0</players>
+	  <maxplayers>100</maxplayers>
+	  <state>IDLE</state>
+	  <creationtime>Fri Aug 24 18:45:06 2007
+</creationtime>
+	  <expirytime>Never</expirytime>
+	</instance>
+  </instances>
+  <gms>
+    <gmplr>
+      <name>Tort</name>
+      <race>5</race>
+      <class>1</class>
+      <gender>0</gender>
+      <pvprank>0</pvprank>
+      <level>2</level>
+      <map>0</map>
+      <areaid>154</areaid>
+      <ontime>0 hours, 2 minutes, 47 seconds</ontime>
+      <latency>110</latency>
+      <permissions>az</permissions>
+    </gmplr>
+  </gms>
+  <sessions>
+    <plr>
+      <name>Alex</name>
+      <race>1</race>
+      <class>8</class>
+      <gender>1</gender>
+      <pvprank>0</pvprank>
+      <level>39</level>
+      <map>1</map>
+      <areaid>440</areaid>
+      <xpos>-7274.040039</xpos>
+      <ypos>-3688.049072</ypos>
+      <ontime>0 hours, 13 minutes, 28 seconds</ontime>
+      <latency>50</latency>
+    </plr>
+    <plr>
+      <name>Hekpomaht</name>
+      <race>1</race>
+      <class>2</class>
+      <gender>0</gender>
+      <pvprank>0</pvprank>
+      <level>39</level>
+      <map>0</map>
+      <areaid>492</areaid>
+      <xpos>-10518.147461</xpos>
+      <ypos>433.166962</ypos>
+      <ontime>0 hours, 18 minutes, 22 seconds</ontime>
+      <latency>54</latency>
+    </plr>
+    <plr>
+      <name>Magnus</name>
+      <race>5</race>
+      <class>9</class>
+      <gender>0</gender>
+      <pvprank>0</pvprank>
+      <level>37</level>
+      <map>0</map>
+      <areaid>33</areaid>
+      <xpos>-11761.239258</xpos>
+      <ypos>231.963104</ypos>
+      <ontime>1 hours, 33 minutes, 54 seconds</ontime>
+      <latency>64</latency>
+    </plr>
+    <plr>
+      <name>Kitana</name>
+      <race>1</race>
+      <class>2</class>
+      <gender>1</gender>
+      <pvprank>0</pvprank>
+      <level>21</level>
+      <map>0</map>
+      <areaid>492</areaid>
+      <xpos>-10529.767578</xpos>
+      <ypos>426.743927</ypos>
+      <ontime>0 hours, 19 minutes, 12 seconds</ontime>
+      <latency>84</latency>
+    </plr>
+    <plr>
+      <name>Hound</name>
+      <race>8</race>
+      <class>3</class>
+      <gender>0</gender>
+      <pvprank>0</pvprank>
+      <level>22</level>
+      <map>0</map>
+      <areaid>117</areaid>
+      <xpos>-12420.228516</xpos>
+      <ypos>209.909454</ypos>
+      <ontime>0 hours, 35 minutes, 26 seconds</ontime>
+      <latency>62</latency>
+    </plr>
+    <plr>
+      <name>Wolf</name>
+      <race>4</race>
+      <class>1</class>
+      <gender>0</gender>
+      <pvprank>0</pvprank>
+      <level>32</level>
+      <map>0</map>
+      <areaid>33</areaid>
+      <xpos>-11542.599609</xpos>
+      <ypos>-228.636993</ypos>
+      <ontime>1 hours, 30 minutes, 10 seconds</ontime>
+      <latency>47</latency>
+    </plr>
+    <plr>
+      <name>El</name>
+      <race>5</race>
+      <class>9</class>
+      <gender>1</gender>
+      <pvprank>0</pvprank>
+      <level>7</level>
+      <map>0</map>
+      <areaid>85</areaid>
+      <xpos>2176.500000</xpos>
+      <ypos>1101.611328</ypos>
+      <ontime>0 hours, 33 minutes, 31 seconds</ontime>
+      <latency>1403</latency>
+    </plr>
+    <plr>
+      <name>Ganibal</name>
+      <race>1</race>
+      <class>5</class>
+      <gender>0</gender>
+      <pvprank>0</pvprank>
+      <level>13</level>
+      <map>0</map>
+      <areaid>918</areaid>
+      <xpos>-10339.079102</xpos>
+      <ypos>1383.502075</ypos>
+      <ontime>0 hours, 16 minutes, 41 seconds</ontime>
+      <latency>55</latency>
+    </plr>
+    <plr>
+      <name>Tort</name>
+      <race>5</race>
+      <class>1</class>
+      <gender>0</gender>
+      <pvprank>0</pvprank>
+      <level>2</level>
+      <map>0</map>
+      <areaid>154</areaid>
+      <xpos>1895.390015</xpos>
+      <ypos>1597.319946</ypos>
+      <ontime>0 hours, 2 minutes, 47 seconds</ontime>
+      <latency>110</latency>
+    </plr>
+    <plr>
+      <name>Luke</name>
+      <race>10</race>
+      <class>8</class>
+      <gender>0</gender>
+      <pvprank>0</pvprank>
+      <level>32</level>
+      <map>0</map>
+      <areaid>125</areaid>
+      <xpos>-12055.848633</xpos>
+      <ypos>1.985240</ypos>
+      <ontime>1 hours, 45 minutes, 19 seconds</ontime>
+      <latency>60</latency>
+    </plr>
+    <plr>
+      <name>Mastikator</name>
+      <race>5</race>
+      <class>5</class>
+      <gender>0</gender>
+      <pvprank>0</pvprank>
+      <level>47</level>
+      <map>0</map>
+      <areaid>51</areaid>
+      <xpos>-6763.753906</xpos>
+      <ypos>-1113.176880</ypos>
+      <ontime>0 hours, 3 minutes, 18 seconds</ontime>
+      <latency>46</latency>
+    </plr>
+  </sessions>
+</serverpage>
