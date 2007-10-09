@@ -1,8 +1,10 @@
 <?php
+
 if (!extension_loaded('mysql')) {
 	die("MYSQL Extension not found");
 }
 ini_set('track_errors', TRUE);
+
 require_once './inc/basic.inc.php';
 $MTimer = new MTimer;
 $MTimer->start();
@@ -12,8 +14,8 @@ require_once './inc/template.inc.php';
 require_once './inc/sgfiles.inc.php';
 require_once './inc/file.inc.php';
 require_once './inc/dir.inc.php';
+require_once './inc/cache.inc.php';
 $_CONFIG=array();
-$Cache=new Storage();
 require_once './config.php';
 require_once './inc/gzip.inc.php';
 require_once './inc/reg.inc.php';
@@ -21,14 +23,11 @@ require_once './inc/reg.inc.php';
 $Cache->open("./Cache/MySQL",NULL);
 $Cache->gc($_CONFIG['statistics_update_time']);
 
-$xml_info=array();
-$Cache->open("./Cache/XML",NULL);
 if(substr($_CONFIG['stats.xml'],0,5) == "http:")
 {
 	if(!ini_get("allow_url_fopen"))
 		die("Error, HTTP_File: \"".$_CONFIG['stats.xml']."\"\n<br>\n<center>to enable this option you must set allow_url_fopen=1 in php.ini</center>");
 	$h1=get_headers($_CONFIG['stats.xml'], 1);
-	print_r($h1);
 	if(!is_array($h1))
 		die("Error, HTTP_File: \"".$_CONFIG['stats.xml']."\" not exists");
 	if(!isset($h1[0]))
@@ -37,8 +36,10 @@ if(substr($_CONFIG['stats.xml'],0,5) == "http:")
 		$h2=explode(" ",$h1[0]);
 	if($h2[1]!=200)
 		die("Error, HTTP_File: \"".$_CONFIG['stats.xml']."\"\n<br>".$h1[0]);
-	//print_r($h1);
-	$xml_time = strtotime($h1['Last-Modified']);
+	if(isset($h1['Last-Modified']))
+		$xml_time = strtotime($h1['Last-Modified']);
+	else
+		$xml_time = strtotime($h1['last-modified']);
 	unset($h1);
 	unset($h2);
 }else{
@@ -51,29 +52,7 @@ if(substr($_CONFIG['stats.xml'],0,5) == "http:")
 	object_checkError($xml_time);
 	$xml_stats->close();
 }
-
-$xml_info = $Cache->read('xml-stats');
-if(!empty($xml_info)){
-	$xml_info=unserialize($xml_info);
-	//die($xml_time."<>".$xml_info['mtime']);
-	if($xml_info['mtime']<=1 OR $xml_time<>$xml_info['mtime']){
-		$Cache->destroy('xml-stats');
-		$xml_info="";
-	}
-}
-if(is_array($xml_info))
-{
-	extract($xml_info,EXTR_OVERWRITE);
-	unset($xml_info);
-	unset($mtime);
-}else{
-	require_once './inc/XMLParser.php';
-	$p=new PEAR_XMLParser;
-	$p->parse(implode('',file($_CONFIG['stats.xml'])));
-	$data=$p->getData();
-	$Cache->write('xml-stats',serialize(array('data'=>$data,'mtime'=>$xml_time)));
-}
-
+extract($Cache->c_get("XML","xml-stats",array('xml_time'=>$xml_time,'_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
 $tpl= new Template($_CONFIG['tpl']);
 $tpl->setFile('page',$_CONFIG['tpl_filename']);
 $tpl->parseFile('page');
@@ -95,10 +74,10 @@ foreach ($list_inst as $key => $val) {
 	{
 		$tpl->setParam('Inst_maxplayers',"-");
 	}else{
-		$tpl->setParam('Inst_maxplayers',$val['maxplayers']);
+		$tpl->setParam('Inst_maxplayers',number_format($val['maxplayers']));
 	}
 	$tpl->setParam('Inst_state',$val['state']);
-	$tpl->setParam('Inst_players',$val['players']);
+	$tpl->setParam('Inst_players',number_format($val['players']));
 	$tpl->setParam('Inst_creationtime',$val['creationtime']);
 	$tpl->setParam('Inst_expirytime',$val['expirytime']);
 	$tpl->setParam('Inst_World',$base_maptype[$val['maptype']]);
@@ -189,134 +168,52 @@ foreach($info as $key=>$val)
 {
 	if(isset($val))
 	{
+		
+		if(eregi("^[[:digit:]]", $val) AND !strpos($val,".") AND !strpos($val," ")){
+			settype($val, "integer");
+			$val=number_format($val);
+		}
+
 		$tpl->setParam(strtolower($key),$val);
 	}
 }
 
-$db_info=array();
-$Cache->open("./Cache/MySQL",NULL);
-$db_info = $Cache->read('characters');
-if(!empty($db_info))
-	$db_info=unserialize($db_info);
-if(is_array($db_info))
+//-------------------
+extract($Cache->c_get("MySQL","characters",array('_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
+if($c<1)
 {
-	extract($db_info,EXTR_OVERWRITE);
-	unset($db_info);
-}else{
-	$char_link=@mysql_connect($_CONFIG['MySQL_char_host'],$_CONFIG['MySQL_char_user'],$_CONFIG['MySQL_char_password'],true) or trigger_error("MySQL Err<br> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
-	if(!@mysql_select_db($_CONFIG['MySQL_char_db'],$char_link))
-	 trigger_error("MySQL Err<br> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
-	$result1=mysql_query("SELECT `race`,`class` FROM `characters` WHERE `level`>".$_CONFIG['lvlmin'],$char_link);
-	$c=mysql_num_rows($result1);
-	$races=array('Human'=>0,'Orc'=>0,'Dwarf'=>0,'Night Elf'=>0,'Undead'=>0,'Tauren'=>0,'Gnom'=>0,'Troll'=>0,'Blood Elf'=>0,'Draenei'=>0);
-	$ally=array('Alliance'=>0);
-	$classes=array('Warrior'=>0,'Paladin'=>0,'Hunter'=>0,'Rogue'=>0,'Priest'=>0,'Shaman'=>0,'Mage'=>0,'Warlock'=>0,'Druid'=>0);
-	while ($char = mysql_fetch_array($result1))
+	for($i=1;$i<=24;$i++)
 	{
-	switch 	($char['race'])
-		{
-		case 1: 
-			$races['Human']++;
-			$ally['Alliance']++;
-			break;
-		case 2: 
-			$races['Orc']++;
-			break;
-		case 3: 
-			$races['Dwarf']++;
-			$ally['Alliance']++;
-			break;
-		case 4: 
-			$races['Night Elf']++;
-			$ally['Alliance']++;
-			break;
-		case 5: 
-			$races['Undead']++;
-			break;
-		case 6:  
-			$races['Tauren']++;
-			break;
-		case 7:  
-			$races['Gnom']++;
-			$ally['Alliance']++;
-			break;
-		case 8:  
-			$races['Troll']++;
-			break;
-		case 10:	
-			$races['Blood Elf']++;
-			break;
-		case 11: 
-			$races['Draenei']++;
-			$ally['Alliance']++;
-			break;
-			}
-	switch 	($char['class'])
-		{
-		case 1: $classes['Warrior']++; break;
-		case 2: $classes['Paladin']++; break;
-		case 3: $classes['Hunter']++; break;
-		case 4: $classes['Rogue']++; break;
-		case 5: $classes['Priest']++; break;
-		case 7: $classes['Shaman']++; break;
-		case 8: $classes['Mage']++; break;
-		case 9: $classes['Warlock']++; break;
-		case 11: $classes['Druid']++; break;
-		}
+		$tpl->setParam('S_'.$i,"0% (0)");
 	}
-	@mysql_free_result($result1);
-
-	@mysql_free_result($result);
-	$Cache->write('characters',serialize(array('classes'=>$classes,'ally'=>$ally,'races'=>$races,'c'=>$c)));
-	mysql_close($char_link);
-}
-$tpl->setParam('S_2',round(($ally['Alliance'] * 100 ) / $c) ."%(".number_format($ally['Alliance']).")");
-$tpl->setParam('S_3',(100 - round(($ally['Alliance'] * 100 ) / $c))."%(".number_format($c - $ally['Alliance']).")");
-$tpl->setParam('S_4',number_format($c));
-
-$tpl->setParam('S_5',round(($races['Human'] * 100 ) / $c) ."%(".number_format($races['Human']).")");
-$tpl->setParam('S_7',round(($races['Dwarf'] * 100 ) / $c) ."%(".number_format($races['Dwarf']).")");
-$tpl->setParam('S_8',round(($races['Tauren'] * 100 ) / $c) ."%(".number_format($races['Tauren']).")");
-$tpl->setParam('S_10',round(($races['Draenei'] * 100 ) / $c) ."% (".number_format($races['Draenei']).")");
-$tpl->setParam('S_11',round(($races['Blood Elf'] * 100 ) / $c) ."%(".number_format($races['Blood Elf']).")");
-$tpl->setParam('S_13',round(($races['Night Elf'] * 100 ) / $c) ."%(".number_format($races['Night Elf']).")");
-$tpl->setParam('S_14',round(($races['Orc'] * 100 ) / $c) ."%(".number_format($races['Orc']).")");
-$tpl->setParam('S_16',round(($races['Gnom'] * 100 ) / $c) ."%(".number_format($races['Gnom']).")");
-$tpl->setParam('S_17',round(($races['Troll'] * 100 ) / $c) ."%(".number_format($races['Troll']).")");
-$tpl->setParam('S_24',round(($races['Undead'] * 100 ) / $c) ."%(".number_format($races['Undead']).")");
-
-$tpl->setParam('S_9',round(($classes['Paladin'] * 100 ) / $c) ."%(".number_format($classes['Paladin']).")");
-$tpl->setParam('S_12',round(($classes['Hunter'] * 100 ) / $c) ."%(".number_format($classes['Hunter']).")");
-$tpl->setParam('S_15',round(($classes['Warrior'] * 100 ) / $c) ."%(".number_format($classes['Warrior']).")");
-$tpl->setParam('S_18',round(($classes['Rogue'] * 100 ) / $c) ."%(".number_format($classes['Rogue']).")");
-$tpl->setParam('S_19',round(($classes['Priest'] * 100 ) / $c) ."%(".number_format($classes['Priest']).")");
-$tpl->setParam('S_20',round(($classes['Shaman'] * 100 ) / $c) ."%(".number_format($classes['Shaman']).")");
-$tpl->setParam('S_21',round(($classes['Mage'] * 100 ) / $c) ."%(".number_format($classes['Mage']).")");
-$tpl->setParam('S_22',round(($classes['Warlock'] * 100 ) / $c) ."%(".number_format($classes['Warlock']).")");
-$tpl->setParam('S_23',round(($classes['Druid'] * 100 ) / $c) ."%(".number_format($classes['Druid']).")");
-
-$db_info=array();
-$Cache->open("./Cache/MySQL",NULL);
-$db_info = $Cache->read('account');
-if(!empty($db_info))
-	$db_info=unserialize($db_info);
-if(is_array($db_info))
-{
-	extract($db_info,EXTR_OVERWRITE);
 }else{
-	$login_link=@mysql_connect($_CONFIG['MySQL_login_host'],$_CONFIG['MySQL_login_user'],$_CONFIG['MySQL_login_password'],true) or trigger_error("MySQL Err<br> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
-	if(!@mysql_select_db($_CONFIG['MySQL_login_db'],$login_link))
-	 trigger_error("MySQL Err<br> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
-	$result=mysql_query("SELECT count(*) FROM `accounts`",$login_link);
-	$count_acc=mysql_result($result,0);
-	@mysql_free_result($result);
-	$result=mysql_query("SELECT count(*) FROM `accounts` WHERE `gm` NOT LIKE ''",$login_link);
-	$count_gm=mysql_result($result,0);
-	$Cache->write('account',serialize(array('count_acc'=>$count_acc,'count_gm'=>$count_gm)));
-	@mysql_free_result($result);
-	mysql_close($login_link);
-}
-unset($db_info);
+	$tpl->setParam('S_2',round(($ally['Alliance'] * 100 ) / $c) ."%(".number_format($ally['Alliance']).")");
+	$tpl->setParam('S_3',(100 - round(($ally['Alliance'] * 100 ) / $c))."%(".number_format($c - $ally['Alliance']).")");
+	$tpl->setParam('S_4',number_format($c));
+
+	$tpl->setParam('S_5',round(($races['Human'] * 100 ) / $c) ."%(".number_format($races['Human']).")");
+	$tpl->setParam('S_7',round(($races['Dwarf'] * 100 ) / $c) ."%(".number_format($races['Dwarf']).")");
+	$tpl->setParam('S_8',round(($races['Tauren'] * 100 ) / $c) ."%(".number_format($races['Tauren']).")");
+	$tpl->setParam('S_10',round(($races['Draenei'] * 100 ) / $c) ."% (".number_format($races['Draenei']).")");
+	$tpl->setParam('S_11',round(($races['Blood Elf'] * 100 ) / $c) ."%(".number_format($races['Blood Elf']).")");
+	$tpl->setParam('S_13',round(($races['Night Elf'] * 100 ) / $c) ."%(".number_format($races['Night Elf']).")");
+	$tpl->setParam('S_14',round(($races['Orc'] * 100 ) / $c) ."%(".number_format($races['Orc']).")");
+	$tpl->setParam('S_16',round(($races['Gnom'] * 100 ) / $c) ."%(".number_format($races['Gnom']).")");
+	$tpl->setParam('S_17',round(($races['Troll'] * 100 ) / $c) ."%(".number_format($races['Troll']).")");
+	$tpl->setParam('S_24',round(($races['Undead'] * 100 ) / $c) ."%(".number_format($races['Undead']).")");
+	
+	$tpl->setParam('S_9',round(($classes['Paladin'] * 100 ) / $c) ."%(".number_format($classes['Paladin']).")");
+	$tpl->setParam('S_12',round(($classes['Hunter'] * 100 ) / $c) ."%(".number_format($classes['Hunter']).")");
+	$tpl->setParam('S_15',round(($classes['Warrior'] * 100 ) / $c) ."%(".number_format($classes['Warrior']).")");
+	$tpl->setParam('S_18',round(($classes['Rogue'] * 100 ) / $c) ."%(".number_format($classes['Rogue']).")");
+	$tpl->setParam('S_19',round(($classes['Priest'] * 100 ) / $c) ."%(".number_format($classes['Priest']).")");
+	$tpl->setParam('S_20',round(($classes['Shaman'] * 100 ) / $c) ."%(".number_format($classes['Shaman']).")");
+	$tpl->setParam('S_21',round(($classes['Mage'] * 100 ) / $c) ."%(".number_format($classes['Mage']).")");
+	$tpl->setParam('S_22',round(($classes['Warlock'] * 100 ) / $c) ."%(".number_format($classes['Warlock']).")");
+	$tpl->setParam('S_23',round(($classes['Druid'] * 100 ) / $c) ."%(".number_format($classes['Druid']).")");
+}	
+//-----
+extract($Cache->c_get("MySQL","account",array('_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
 
 if(@$_GET['do']!='reg')
 {
@@ -360,13 +257,7 @@ if(@$_GET['do']!='reg')
 			{
 				$Cache->open("./Cache/MySQL",NULL);
 				$Cache->destroy('account');
-				$result=mysql_query("SELECT count(*) FROM `accounts`",$login_link);
-				$count_acc=mysql_result($result,0);
-				@mysql_free_result($result);
-				$result=mysql_query("SELECT count(*) FROM `accounts` WHERE `gm` NOT LIKE ''",$login_link);
-				$count_gm=mysql_result($result,0);
-				$Cache->write('account',serialize(array('count_acc'=>$count_acc,'count_gm'=>$count_gm)));
-				mysql_free_result($result);
+				extract($Cache->c_get("MySQL","account",array('_CONFIG'=>$_CONFIG,'login_link'=>$login_link)),EXTR_OVERWRITE);
 				$tpl->setParam("FormReg_msg","Account '{$username}' Created");
 				$tpl->setParam('FormReg_user',"");
 				$tpl->setParam('FormReg_password',"");
