@@ -168,7 +168,6 @@
 			<th>Map (#)</th>
 			<th><center>Players</center></th>
 			<th><center>Player Limit</center></th>
-			<th><center>State</center></th>
 			<th><center>Type</center></th>
 			<th style="text-align:right">Creation Time</th>
 			<th style="text-align:right">Expiry Time</th>
@@ -178,13 +177,8 @@
 			<td>
 			{map_name} ({map})</td>
 			<td align="center">{Inst_players}</td>
-			<td align="center">
-				{Inst_maxplayers}
-			</td>
-			<td align="center">{Inst_state}</td>
-			<td align="center">
-			{Inst_World}
-            </td>
+			<td align="center">{Inst_maxplayers}</td>
+			<td align="center">{Inst_World}</td>
 			<td align="right">{Inst_creationtime}</td>
 			<td align="right">{Inst_expirytime}</td>
 		</tr>

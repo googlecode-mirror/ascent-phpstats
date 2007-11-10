@@ -76,7 +76,6 @@ foreach ($list_inst as $key => $val) {
 	}else{
 		$tpl->setParam('Inst_maxplayers',number_format($val['maxplayers']));
 	}
-	$tpl->setParam('Inst_state',$val['state']);
 	$tpl->setParam('Inst_players',number_format($val['players']));
 	$tpl->setParam('Inst_creationtime',$val['creationtime']);
 	$tpl->setParam('Inst_expirytime',$val['expirytime']);
