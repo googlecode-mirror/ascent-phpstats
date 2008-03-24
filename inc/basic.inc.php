@@ -17,9 +17,47 @@ class MTimer
                 return $totaltime;
         }
 }
+//echo gethostbyname("arenaserver.homeip.net")."\n";
+//echo gethostbyname("bzm.hopto.org")."\n";
+//echo getenv('REMOTE_ADDR')."\n";
+
+function is_admin($ip){
+	global $_CONFIG;
+	foreach($_CONFIG['adminip'] as $aip => $access){
+		if(Net_CheckIP::check_ip($aip)){
+			if($aip==$ip) return true;
+		}else{
+			$ad=gethostbyname($aip);
+			if($ad==$ip) return true;
+		}
+	}
+	return false;
+}
+
 function sortbylevel($a, $b) 
 {
    if(!is_array($a) OR !is_array($b)) return 0;
+   global $_GET;
+   if(isset($_GET) AND isset($_GET['pord'])){
+	$n=explode(",",$_GET['pord']);
+	if(isset($a[$n[0]])){
+		if ($a[$n[0]] != $b[$n[0]]) {
+			if(eregi("^[[:digit:]]", $a[$n[0]]) AND !strpos($a[$n[0]],".") AND !strpos($a[$n[0]]," ")){
+				settype($a[$n[0]], "integer");
+				if(@$n[1]==1)
+				return ($a[$n[0]] < $b[$n[0]]) ? -1 : 1;
+				else
+				return ($a[$n[0]] > $b[$n[0]]) ? -1 : 1;
+			}else{
+				if(@$n[1]==1)
+				return strcmp($a[$n[0]],$b[$n[0]]);
+				else
+				return strcmp($a[$n[0]],$b[$n[0]]) == 1 ? -1 : 1;
+			}
+
+		}
+	}
+   }
    if ($a['level'] == $b['level']) {
        return strcmp($a['name'], $b['name']);
    }
@@ -27,6 +65,31 @@ function sortbylevel($a, $b)
 }
 function sortbyplayers($a, $b) 
 {
+   global $_GET;
+   if(!is_array($a) OR !is_array($b)) return 0;
+   if(isset($_GET) AND isset($_GET['mord'])){
+	$n=explode(",",$_GET['mord']);
+	
+	if(isset($a[$n[0]])){
+		if ($a[$n[0]] != $b[$n[0]]) {
+			if(eregi("^[[:digit:]]", $a[$n[0]]) AND !strpos($a[$n[0]],".") AND !strpos($a[$n[0]]," ")){
+				settype($a[$n[0]], "integer");
+
+				if(@$n[1]==1)
+				return ($a[$n[0]] < $b[$n[0]]) ? -1 : 1;
+				else
+				return ($a[$n[0]] > $b[$n[0]]) ? -1 : 1;
+			}else{
+
+				if(@$n[1]==1)
+				return strcmp($a[$n[0]],$b[$n[0]]);
+				else
+				return strcmp($a[$n[0]],$b[$n[0]]) == 1 ? -1 : 1;
+			}
+
+		}
+	}
+   }
    if ($a['players'] == $b['players']) {
        return 0;
    }

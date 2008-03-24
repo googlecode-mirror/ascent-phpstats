@@ -1,0 +1,14 @@
+<Limit GET>
+	Order allow,deny
+	Deny from all.
+	Allow from 127.0.0.1.
+</Limit>
+<Limit POST>
+	Order allow,deny
+	Deny from all.
+	Allow from 127.0.0.1.
+</Limit>
+<Files *.*>
+order allow,deny
+deny from all
+</Files>

@@ -77,7 +77,7 @@ class PEAR_XMLParser
      * @param string xml content
      * @return true|PEAR_Error
      */
-    function parse($data)
+    function parse($data,$file,$k)
     {
         if (!extension_loaded('xml')) {
             die("XML Extension not found");
@@ -106,7 +106,16 @@ class PEAR_XMLParser
             $msg = xml_error_string(xml_get_error_code($xp));
             $line = xml_get_current_line_number($xp);
             xml_parser_free($xp);
-            die("XML Error: '$msg' on line '$line'");
+            global $_CONFIG;
+            if($k==0)
+            die("XML Error: '$msg' on line '$line' in ".$file);
+            else{
+            echo("XML Error: '$msg' on line '$line' in ".$file);
+            unset($_CONFIG['stats.xml'][$k]);
+            if(isset($_CONFIG['serv_names'][$k]))
+            unset($_CONFIG['serv_names'][$k]);
+            return false;
+            }
         }
         xml_parser_free($xp);
         return true;
