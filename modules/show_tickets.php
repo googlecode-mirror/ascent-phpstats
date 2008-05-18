@@ -6,61 +6,62 @@ class module_show_tickets extends module_obj
 	}
 	function isload(){
 		if (!extension_loaded('mysql')) return 0;
-
 		return 1;
 	}
 	function getname(){
 		return "tickets";
 	}
 	function getlink(){
-		return "show_tickets";
+		return "st";
 	}
 	function getdata(&$tpl){
-		global $Cache,$_CONFIG,$_GET;
+		global $system,$_CONFIG,$_GET,$is_admin;
 		$lnk="";
-		if(isset($_GET) AND isset($_GET['act']) AND is_admin(getenv('REMOTE_ADDR'))){
+		if(isset($_GET) AND isset($_GET['act']) AND $is_admin){
 			if($_GET['act']=="del" and isset($_GET['id'])){
-				$char_link=@mysql_connect($_CONFIG["MySQL_char_host"],$_CONFIG["MySQL_char_user"],$_CONFIG["MySQL_char_password"],true) or trigger_error("MySQL Err<br> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
-				if(!@mysql_select_db($_CONFIG["MySQL_char_db"],$char_link))trigger_error("MySQL Err<br> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
+				$char_link=$system->mysql_connect();
 				mysql_query("DELETE  FROM  `gm_tickets` WHERE `guid`=".$_GET['id'],$char_link);
-				$Cache->open("./Cache/MySQL",NULL);
-				$Cache->destroy('tickets');
-				$lnk.="
-<script type=\"text/javascript\">
-self.location=\"?m=".$this->getlink()."\";
-</script>";
+				$system->cache->open("./Cache/MySQL",NULL);
+				$system->cache->destroy('tickets');
+				$lnk.="<script type=\"text/javascript\">self.location=\"?m=".$this->getlink()."\";</script>";
+			}elseif($_GET['act']=="update"){
+				$system->cache->open("./Cache/MySQL",NULL);
+				$system->cache->destroy('tickets');
+				$lnk.="<script type=\"text/javascript\">self.location=\"?m=".$this->getlink()."\";</script>";
+			}elseif($_GET['act']=="unstuck" AND isset($_GET['cname']) AND isset($system->mods->mods['uns'])){
+				$char_link=$system->mysql_connect();
+				$sq=mysql_query("SELECT `characters`.`guid` FROM `characters` WHERE `characters`.`name` =  '".mysql_escape_string($_GET['cname'])."' ORDER BY `characters`.`level` DESC",$char_link);
+				if(mysql_num_rows($sq)==1 AND !$system->is_online($_GET['cname'])){
+					$dr=mysql_fetch_array($sq);
+					$system->mods->mods['uns']->makeunstuck($char_link,$dr['guid']);
+				}
+				$lnk.="<script type=\"text/javascript\">self.location=\"?m=".$this->getlink()."\";</script>";
 			}
 		}
 		$tpl->setBlock('MOD_PAGE', 'ST');
 		if(isset($char_link))
-		extract($Cache->c_get("MySQL","tickets",array('_CONFIG'=>$_CONFIG,'char_link'=>$char_link)),EXTR_OVERWRITE);
+		extract($system->cache->c_get("MySQL","tickets",array('_CONFIG'=>$_CONFIG,'char_link'=>$char_link)),EXTR_OVERWRITE);
 		else
-		extract($Cache->c_get("MySQL","tickets",array('_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
+		extract($system->cache->c_get("MySQL","tickets",array('_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
 
-		$params = array(
-    'itemData' => $data,
-    'perPage' => 10,
-    'delta' => 8,             // for 'Jumping'-style a lower number is better
-    'append' => true,
-    'separator' => ' | ',
-    'clearIfVoid' => false,
-    'urlVar' => 'pd',
-//    'useSessions' => true,
-//    'closeSession' => true,
-//    'mode'  => 'Sliding',    //try switching modes
-    'mode'  => 'Jumping',
-
-);
+		$params = array('itemData' => $data,'perPage' => 10,'delta' => 8,'append' => true,'separator' => ' | ','clearIfVoid' => false,'urlVar' => 'pd','mode'  => 'Jumping');
 		$pager = & Pager::factory($params);
 		$page_data = $pager->getPageData();
 		$links = $pager->getLinks();
 		//print_r($links);
 		foreach ($page_data as $key => $val) {
-			if(is_admin(getenv('REMOTE_ADDR')))
-			$tpl->setParam('ST_ID',"Name:{$val['name']}({$val['level']})"."\n<br/> id:{$val['guid']}<pre> <a href=\"?m=".$this->getlink()."&amp;act=del&amp;id={$val['guid']}\">DELETE</a>");
-			else
-			$tpl->setParam('ST_ID',"Name:{$val['name']}({$val['level']})"."\n<br/> id:{$val['guid']}");
-			$tpl->setParam('ST_MESS',$val['message']);
+			$isonline=$system->is_online($val['name']);
+			$n="Name:{$val['name']}({$val['level']})"."\n<br/> id:{$val['guid']}<br/>";
+			if($isonline) $n.="Online"; else $n.="Offline";
+			if($is_admin){// $n.="<hr/>";
+				if(isset($system->mods->mods['uns']) AND !$isonline) $n.="<hr/><a href=\"?m=".$this->getlink()."&amp;act=unstuck&amp;name={$val['name']}\">UNSTUCK</a>";
+				if(isset($system->mods->mods['lookup'])) $n.="<hr/><a href=\"?m=lookup&amp;char={$val['name']}\">LOOKUP</a>";
+
+				$n.="<hr/>&nbsp;<br/><a href=\"?m=".$this->getlink()."&amp;act=del&amp;id={$val['guid']}\">DELETE</a>";
+			}
+			
+			$tpl->setParam('ST_ID',$n);
+			$tpl->setParam('ST_MESS',str_replace("\n","<br/>",$val['message']));
 			$tpl->setParam('ST_TIME', date("H:i:s d.m.y",$val['timestamp']));
 			$tpl->parseParam('ST', 'STDynamic', true);
 		}
@@ -69,7 +70,7 @@ self.location=\"?m=".$this->getlink()."\";
 		$lnk.="<div align=\"center\">".$links['pages']."</div>";
 		if(isset($links['next']) AND $links['next']!="")
 		$lnk.="<div align=\"right\">".$links['next']."</div>";
-		if(is_admin(getenv('REMOTE_ADDR')))
+		if($is_admin)
 		$tpl->setParam('ST_PAGE',$lnk."\n<pre><a href=\"?m=".$this->getlink()."&amp;act=update\">UPDATE</a>");
 		else
 		$tpl->setParam('ST_PAGE',$lnk);
@@ -80,7 +81,7 @@ self.location=\"?m=".$this->getlink()."\";
 		return "st";
 	}
 	function c_cache($var){
-global $Cache;
+global $system;
 extract($var,EXTR_OVERWRITE);
 $SQL_SELECT="
 SELECT
@@ -95,8 +96,8 @@ FROM
 ORDER BY
 `gm_tickets`.`timestamp` DESC";
 $db_info=array();
-$Cache->open("./Cache/MySQL",NULL);
-$db_info = $Cache->read("tickets");
+$system->cache->open("./Cache/MySQL",NULL);
+$db_info = $system->cache->read("tickets");
 if(!empty($db_info))
 	$db_info=unserialize($db_info);
 if(is_array($db_info))
@@ -107,9 +108,7 @@ if(is_array($db_info))
 	if(!isset($char_link))
 	{
 		$char_link_st=true;
-		$char_link=@mysql_connect($_CONFIG["MySQL_char_host"],$_CONFIG["MySQL_char_user"],$_CONFIG["MySQL_char_password"],true) or trigger_error("MySQL Err<br> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
-		if(!@mysql_select_db($_CONFIG["MySQL_char_db"],$char_link))
-		 trigger_error("MySQL Err<br> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
+		$char_link=$system->mysql_connect();
 	}else{
 		$char_link_st=false;
 	}
@@ -121,7 +120,7 @@ if(is_array($db_info))
 	}
 	@mysql_free_result($result);
 	$frt=array("data"=>$data);
-	$Cache->write("tickets",serialize($frt));
+	$system->cache->write("tickets",serialize($frt));
 	//if($char_link_st)
 		mysql_close($char_link);
 }
@@ -129,8 +128,8 @@ return $frt;
 unset($db_info);
 	}
 	function module_show_tickets(){
-		global $Cache;
-		$Cache->c_add("MySQL","tickets",array($this,'c_cache'));
+		global $system;
+		$system->cache->c_add("MySQL","tickets",array($this,'c_cache'));
 	}
 }
 ?>

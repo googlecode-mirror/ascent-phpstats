@@ -103,8 +103,9 @@ class Storage extends Object {
      * @param string $id the current session id.
      * @return mixed
      */
-    function read($id) {
-        global $storage_path, $storage_name;
+    function read($id,$safe=false) {
+        global $storage_path, $storage_name,$system;
+        if(!$safe)$id=$system->appysid($id);
         $storage = new File($storage_path . '/sess_' . $id, 'r');
         if (is_object($storage) && $storage->exists()) {
             if ($storage->open() == true) {
@@ -130,8 +131,9 @@ class Storage extends Object {
      * @param string $data the current session data.
      * @return boolean
      */
-    function write($id, $data) {
-        global $storage_path, $storage_name;
+    function write($id, $data,$safe=false) {
+        global $storage_path, $storage_name,$system;
+        if(!$safe)$id=$system->appysid($id);
         $storage = new File($storage_path . '/sess_' . $id, 'w+');
         if (is_object($storage)) {
             if ($storage->open() == true) {
@@ -155,8 +157,9 @@ class Storage extends Object {
      * @param string $id the current session id.
      * @return boolean
      */
-    function destroy($id)  {
-        global $storage_path, $storage_name;
+    function destroy($id,$safe=false)  {
+        global $storage_path, $storage_name,$system;
+        if(!$safe)$id=$system->appysid($id);
         $storage = new File($storage_path . '/sess_' . $id, 'r');
         if (is_object($storage)) {
             return ($storage->delete() == true);
@@ -202,7 +205,44 @@ class Storage extends Object {
         }
         return false;
     }
-
+    function gc2($maxlifetime) {
+        global $storage_path, $storage_name;
+        $storage = new Dir($storage_path);
+        if (is_object($storage)) {
+            if ($storage->open() == true) {
+                $modules = $storage->readFiles();
+                if (!object_isError($modules)) {
+                    $expire = time() - $maxlifetime;
+                    for ($i = 0; $i < count($modules); $i++) {
+                        if (!strstr($modules[$i]->getName(), 'sess_')) {
+                            continue;
+                        }
+                        if ($modules[$i]->open() == true) {
+                            $d=unserialize($modules[$i]->read());
+                            $modules[$i]->close();
+                            if(!isset($d['time'])){ $modules[$i]->delete(); continue;}
+                            $e = time() - $d['time'];
+                            if ($e < $modules[$i]->getMTime()) {
+                                continue;
+                            }
+                            $modules[$i]->delete();
+                            continue;
+                        }
+                        if ($expire < $modules[$i]->getMTime()) {
+                            continue;
+                        }
+                        $result = $modules[$i]->delete();
+                        if (object_isError(@$result)) {
+                            break;
+                        }
+                    }
+                }
+                $storage->close();
+                return (object_isError(@$result) == false);
+            }
+        }
+        return false;
+    }
 }
 
 ?>

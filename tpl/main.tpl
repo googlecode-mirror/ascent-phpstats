@@ -50,7 +50,7 @@
 		</tr>
 		<tr>
 			<td colspan="12" align="left">
-			<center>Modules:&nbsp;&nbsp;{MOD_LINKS}</center>		</td>
+			<center>{MOD_LINKS}</center>		</td>
 		</tr>
 	</table>
 	

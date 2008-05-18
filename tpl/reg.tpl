@@ -1,4 +1,4 @@
-              <td height="31%" valign="top"><form action="?do=reg" method="post" target="_self" />
+              <td height="31%" valign="top"><form action="?m={mlnk}" method="post" target="_self" />
 	<label>Account &nbsp;&nbsp;&nbsp;&nbsp;
                     <input name="reg_name" type="text" id="reg_name" value="{FormReg_user}" maxlength="16" />
                 </label>             
@@ -12,6 +12,10 @@
             <tr>
               <td height="19%" align="center" valign="top"><label>E-mail&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <input name="reg_email" type="text" id="reg_email" value="{FormReg_email}" maxlength="32" />
+                </label>              </td>
+            </tr>
+            <tr>
+              <td height="19%" align="center" valign="top"><label><img src="{FormReg_CAPTCHA}" /><br/>Please enter the text in the image:<br/><input name="phrase" type="text" id="phrase" value="" maxlength="32" />
                 </label>              </td>
             </tr>
             <tr align="center">

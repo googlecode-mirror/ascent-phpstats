@@ -3,14 +3,15 @@ class module_top10honor extends module_obj
 {
 	var $sql_select="SELECT `characters`.`name`, `characters`.`race`, `characters`.`class`, `characters`.`gender`, `characters`.`level`, `characters`.`killsLifeTime` FROM `characters` ORDER BY `characters`.`killsLifeTime` DESC LIMIT 100";
 	function module_top10honor(){
-		global $Cache;
-		$Cache->c_add("MySQL","tk",array($this,'c_cache'));
+		global $system;
+		$system->cache->c_add("MySQL","tk",array($this,'c_cache'));
 	}
 	function ismenu(){
 		return 1;
 	}
 	function isload(){
 		//if(!is_admin(getenv('REMOTE_ADDR'))) return 0;
+		if (!extension_loaded('mysql')) return 0;
 
 		return 1;
 	}
@@ -21,19 +22,18 @@ class module_top10honor extends module_obj
 		return "t10k";
 	}
 	function c_cache($var){
-		global $Cache;
+		global $system;
 		extract($var,EXTR_OVERWRITE);
 		$db_info=array();
-		$Cache->open("./Cache/MySQL",NULL);
-		$db_info = $Cache->read("tk");
+		$system->cache->open("./Cache/MySQL",NULL);
+		$db_info = $system->cache->read("tk");
 		if(!empty($db_info))
 			$db_info=unserialize($db_info);
 		if(is_array($db_info)){
 			$frt=$db_info;
 			unset($db_info);
 		}else{
-			$char_link=@mysql_connect($_CONFIG["MySQL_char_host"],$_CONFIG["MySQL_char_user"],$_CONFIG["MySQL_char_password"],true) or trigger_error("MySQL Err<br /> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
-			if(!@mysql_select_db($_CONFIG["MySQL_char_db"],$char_link)) trigger_error("MySQL Err<br /> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
+			$char_link=$system->mysql_connect();
 			$res=mysql_query($this->sql_select,$char_link);
 			$data=array();
 			while ($char = mysql_fetch_array($res)){
@@ -42,15 +42,15 @@ class module_top10honor extends module_obj
 			@mysql_free_result($res);
 			mysql_close($char_link);
 			$frt=array("top10data"=>$data);
-			$Cache->write("tk",serialize($frt));
+			$system->cache->write("tk",serialize($frt));
 		}
 		return $frt;
 	}
 	function getdata(&$tpl){
-		global $_CONFIG,$Cache,$_GET;
+		global $_CONFIG,$system,$_GET;
 		require_once './inc/base.inc.php';
 		$tpl->setBlock('MOD_PAGE', 'TOP10');
-		extract($Cache->c_get("MySQL","tk",array('_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
+		extract($system->cache->c_get("MySQL","tk",array('_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
 		if(isset($_GET['t'])) $t=$_GET['t']; else $t=1;
 		if($t<1 OR $t>3) $t=1;
 		foreach($top10data as $rank => $char){

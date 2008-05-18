@@ -15,37 +15,9 @@ class module_online extends module_obj
 		return "onl";
 	}
 	function getdata(&$tpl){
-		global $Cache,$_CONFIG,$xml_data,$base_maptype,$base_class,$base_race,$base_faction,$base_map,$base_areaid,$is_admin;
+		global $system,$_CONFIG,$base_maptype,$base_class,$base_race,$base_faction,$base_map,$base_areaid,$is_admin;
 require_once './inc/base.inc.php';
-if(isset($_GET['serv'])) $this->serv=$_GET['serv'];
-$tpl->setParam('OPT_SERV',$this->serv);
-if(count($_CONFIG['stats.xml'])>1){
-	$s="Servers: ";
-	ksort($_CONFIG['stats.xml']);
-	ksort($_CONFIG['serv_names']);
-	ksort($xml_data);
-	reset($_CONFIG['stats.xml']);
-	reset($_CONFIG['serv_names']);
-	reset($xml_data);
-	if(!isset($xml_data[$this->serv]))$this->serv=0;
-	foreach($_CONFIG['stats.xml'] as $k => $v){
-		if(isset($_CONFIG['serv_names'][$k])){
-			if($this->serv==$k)
-			$s.="<u>".$_CONFIG['serv_names'][$k]."</u> | ";
-			else
-			$s.="<a href=\"?m=onl&amp;serv=".$k."\">".$_CONFIG['serv_names'][$k]."</a> | ";
-		}else{
-			if($this->serv==$k)
-			$s.="<u>".$k."</u> | ";
-			else
-			$s.="<a href=\"?m=onl&amp;serv=".$k."\">".$k."</a> | ";
-		}
-	}
-	$tpl->setParam('OPT_SLIST',substr($s,0,strlen($s)-2));
-}else{
-	$this->serv=0;
-	$tpl->setParam('OPT_SLIST','');
-}
+$tpl->setParam('OPT_SLIST','');
 $tpl->setBlock('MOD_PAGE', 'Inst');
 $tpl->setBlock('MOD_PAGE', 'GM');
 $tpl->setBlock('MOD_PAGE', 'PL');
@@ -78,9 +50,9 @@ if(isset($_GET) AND isset($_GET['pord'])){
 	$tpl->setParam('so_11',1);
 }
 
-if(is_array($xml_data[$this->serv]['instances']))
+if(is_array(@$system->xml['instances']))
 {
-	$list_inst=$xml_data[$this->serv]['instances']['instance'];
+	$list_inst=@$system->xml['instances']['instance'];
 }else{
 	$list_inst=array();
 }
@@ -125,9 +97,9 @@ foreach ($list_inst as $key => $val) {
 	$tpl->parseParam('Inst', 'InstDynamic', true);
 }
 $tpl->setParam('Inst', $tpl->getParam('InstDynamic'));
-if(is_array($xml_data[$this->serv]['gms']))
+if(is_array(@$system->xml['gms']))
 {
-	$list_gm=@$xml_data[$this->serv]['gms']['gmplr'];
+	$list_gm=@$system->xml['gms']['gmplr'];
 }else{
 	$list_gm=array();
 }
@@ -159,9 +131,9 @@ foreach ($list_gm as $key => $val) {
 	$tpl->parseParam('GM', 'GMDynamic', true);
 }
 $tpl->setParam('GM', $tpl->getParam('GMDynamic'));
-if(is_array($xml_data[$this->serv]['sessions']))
+if(is_array(@$system->xml['sessions']))
 {
-	$list_pl=@$xml_data[$this->serv]['sessions']['plr'];
+	$list_pl=@$system->xml['sessions']['plr'];
 }else{
 	$list_pl=array();
 }

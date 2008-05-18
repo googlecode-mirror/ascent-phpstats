@@ -131,7 +131,7 @@ class Log
     {
         $handler = strtolower($handler);
         $class = 'Log_' . $handler;
-        $classfile = 'inc/Log/' . $handler . '.php';
+        $classfile = dirname(__FILE__).'/Log/' . $handler . '.php';
 
         /*
          * Attempt to include our version of the named class, but don't treat

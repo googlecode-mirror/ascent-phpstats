@@ -10,6 +10,10 @@ $_CONFIG['stats.xml']=array("./xml/stats.xml","./xml/stats1.xml");         	//pa
                                                  				//anything like that: "http://localhost/stats.xml"
 $_CONFIG['serv_names']=array("PvP","Normal");
 
+// Can be uses for disable vars in main page: array("gmcount"=>0)
+$_CONFIG['dis_status']=array(); 
+
+$_CONFIG['main_module']="onl";	//lnk module
 $_CONFIG['tpl']="./tpl/";                        //path to .tpl file
 $_CONFIG['showgm']=true;
 $_CONFIG['force_gzip']=false;                    //Gzip-compression
@@ -23,10 +27,20 @@ $_CONFIG['max_acc_per_ip']=1;                    //how many accouns user can cre
 //############################################################################
 
 //charDB
-$_CONFIG['MySQL_char_host']="CHANGE THIS";       //MySQL database adress 
-$_CONFIG['MySQL_char_user']="CHANGE THIS";       //MySQL username
-$_CONFIG['MySQL_char_password']="CHANGE THIS";   //MySQL password
-$_CONFIG['MySQL_char_db']="ascent";              //your ascent char database name
+$_CONFIG['MySQL']=array(
+	array( // Server 1
+'host'=>"localhost",
+'user'=>"root",
+'password'=>"",
+'db'=>"ascent-char2"
+	),
+	array( // Server 2
+'host'=>"localhost",
+'user'=>"root",
+'password'=>"",
+'db'=>"ascent-char3"
+	),
+);
 //loginDB
 $_CONFIG['MySQL_login_host']="CHANGE THIS";      //MySQL database adress 
 $_CONFIG['MySQL_login_user']="CHANGE THIS";      //MySQL username
@@ -38,9 +52,6 @@ $_CONFIG['MySQL_login_db']="ascent";             //your ascent login database na
 //#         S A T I S T I C S     C O N F I G     P A R T
 //#
 //############################################################################
-$_CONFIG['adminip']=array(
-'127.0.0.1'=>'',
-);
 
 $_CONFIG['log']=array('mode' => 0600, 'timeFormat' => '%X %x');
 $_CONFIG['blockcp']=15*60;

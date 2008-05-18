@@ -1,5 +1,6 @@
 <?php 
 define("GzipCompressionLevel",9); 
+global $gzpstatus;
 
 function gzipCompressionHandler($content) 
 { 

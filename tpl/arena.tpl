@@ -1,4 +1,5 @@
 <td></td><td></td><td></td><td></td><td></td><td></td></tr>
+{fa_inspect}
 <tr class="head"><th colspan="7">2v2</th></tr>
 <tr>
 			<th>Rank (#)</th>

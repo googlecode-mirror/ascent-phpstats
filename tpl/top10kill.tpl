@@ -15,4 +15,4 @@
 			<td align="center">{top_kill}</td>
 		</tr>
 <!--EndTOP10-->
-<tr><td></td><td>Top: <a href="?m=t10k&t=1">10</a>&nbsp;<a href="?m=t10k&t=2">50</a>&nbsp;<a href="?m=t10k&t=3">100</a></td><td></td><td></td><td></td><td></td>
+<tr><td></td><td>Top: <a href="?m={mlnk}&t=1">10</a>&nbsp;<a href="?m={mlnk}&t=2">50</a>&nbsp;<a href="?m={mlnk}&t=3">100</a></td><td></td><td></td><td></td><td></td>

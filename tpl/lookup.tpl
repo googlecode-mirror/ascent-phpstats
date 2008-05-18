@@ -1,4 +1,4 @@
-              <td height="31%" valign="top"><form action="?m=lookup" method="post" target="_self" />
+              <td height="31%" valign="top"><form action="?m={mlnk}" method="post" target="_self" />
 	<label>Char
                     <input name="c_user" type="text" id="c_name" value="{c_user}" maxlength="16" />
                 </label>              </td>

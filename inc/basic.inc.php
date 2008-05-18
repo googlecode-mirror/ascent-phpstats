@@ -22,7 +22,8 @@ class MTimer
 //echo getenv('REMOTE_ADDR')."\n";
 
 function is_admin($ip){
-	global $_CONFIG;
+	global $_CONFIG,$system;
+	return $system->auth->getAuth();
 	foreach($_CONFIG['adminip'] as $aip => $access){
 		if(Net_CheckIP::check_ip($aip)){
 			if($aip==$ip) return true;
@@ -33,6 +34,17 @@ function is_admin($ip){
 	}
 	return false;
 }
+
+    if (!function_exists('file_put_contents')) {
+        function file_put_contents($filename, $content) {
+            if (!($file = fopen($filename, 'w'))) {
+                return false;
+            }
+            $n = fwrite($file, $content);
+            fclose($file);
+            return $n ? $n : false;
+        }
+    }
 
 function sortbylevel($a, $b) 
 {

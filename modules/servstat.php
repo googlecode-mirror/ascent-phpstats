@@ -16,11 +16,11 @@ class module_servstat extends module_obj
 		return "stat";
 	}
 	function c_cache($var){
-global $Cache;
+global $system;
 extract($var,EXTR_OVERWRITE);
 $db_info=array();
-$Cache->open("./Cache/MySQL",NULL);
-$db_info = $Cache->read("characters");
+$system->cache->open("./Cache/MySQL",NULL);
+$db_info = $system->cache->read("characters");
 if(!empty($db_info))
 	$db_info=unserialize($db_info);
 if(is_array($db_info))
@@ -28,9 +28,7 @@ if(is_array($db_info))
 	$frt=$db_info;
 	unset($db_info);
 }else{
-	$char_link=@mysql_connect($_CONFIG["MySQL_char_host"],$_CONFIG["MySQL_char_user"],$_CONFIG["MySQL_char_password"],true) or trigger_error("MySQL Err<br> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
-	if(!@mysql_select_db($_CONFIG["MySQL_char_db"],$char_link))
-	 trigger_error("MySQL Err<br> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
+	$char_link=$system->mysql_connect();
 	$result1=mysql_query("SELECT `race`,`class` FROM `characters` WHERE `level`>".$_CONFIG["lvlmin"],$char_link);
 	$c=mysql_num_rows($result1);
 	$races=array("Human"=>0,"Orc"=>0,"Dwarf"=>0,"Night Elf"=>0,"Undead"=>0,"Tauren"=>0,"Gnom"=>0,"Troll"=>0,"Blood Elf"=>0,"Draenei"=>0);
@@ -93,14 +91,14 @@ if(is_array($db_info))
 
 	@mysql_free_result($result);
 	$frt=array("classes"=>$classes,"ally"=>$ally,"races"=>$races,"c"=>$c);
-	$Cache->write("characters",serialize($frt));
+	$system->cache->write("characters",serialize($frt));
 	mysql_close($char_link);
 }
 return $frt;
 	}
 	function getdata(&$tpl){
-		global $Cache,$_CONFIG;
-extract($Cache->c_get("MySQL","characters",array('_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
+		global $system,$_CONFIG;
+extract($system->cache->c_get("MySQL","characters",array('_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
 if($c<1)
 {
 	for($i=1;$i<=24;$i++)
@@ -134,7 +132,7 @@ if($c<1)
 	$tpl->setParam('S_23',round(($classes['Druid'] * 100 ) / $c) ."%(".number_format($classes['Druid']).")");
 }	
 //-----
-extract($Cache->c_get("MySQL","account",array('_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
+extract($system->cache->c_get("MySQL","account",array('_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
 $tpl->setParam('S_1',number_format($count_acc));
 $tpl->setParam('S_6',number_format($count_gm));
 	}
@@ -142,8 +140,8 @@ $tpl->setParam('S_6',number_format($count_gm));
 		return "servstat";
 	}
 	function module_servstat(){
-		global $Cache;
-		$Cache->c_add("MySQL","characters",array($this,'c_cache'));
+		global $system;
+		$system->cache->c_add("MySQL","characters",array($this,'c_cache'));
 	}
 }
 ?>

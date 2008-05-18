@@ -16,7 +16,7 @@ class module_chpass extends module_obj
 		return "cp";
 	}
 	function getdata(&$tpl){
-		global $Cache,$_CONFIG,$_POST,$_GET,$logger;
+		global $system,$_CONFIG,$_POST,$_GET;
 		if($_SERVER["REQUEST_METHOD"]=="POST" AND isset($_POST) AND isset($_POST['c_user'])){
 			$tpl->setParam('c_user',$_POST['c_user']);
 			if(strlen($_POST['c_user'])<2){
@@ -45,17 +45,15 @@ class module_chpass extends module_obj
 				$tpl->setParam('c_msg',"<center>Error:</center><br />".$ts[1]);
 				return;}
 			$c_sql_user=mysql_escape_string($_POST['c_user']);
-			$Cache->open("./Cache/ch_pass_lock",NULL);
-			$baninfo = $Cache->read($_POST['c_user']);
+			$system->cache->open("./Cache/ch_pass_lock",NULL);
+			$baninfo = $system->cache->read($_POST['c_user']);
 			if(strlen($baninfo)>0){ //Invalid Password Or Name
 				$tpl->setParam('c_msg','Block account change password:<br />'.$baninfo);
 				return;
 			}
 			$sql_get_pass="SELECT `accounts`.`password` FROM `accounts` WHERE `accounts`.`login` =  '{$c_sql_user}' AND `accounts`.`gm` =  \"\"";
 			//var_dump($sql_get_pass);
-			$login_link=@mysql_connect($_CONFIG['MySQL_login_host'],$_CONFIG['MySQL_login_user'],$_CONFIG['MySQL_login_password'],true) or trigger_error("MySQL Err<br /> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
-			if(!@mysql_select_db($_CONFIG['MySQL_login_db'],$login_link))
-			 trigger_error("MySQL Err<br /> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
+			$login_link=$system->mysql_login();
 			$sq=mysql_query($sql_get_pass,$login_link);
 			//var_dump($sql_get_pass);
 			if(mysql_num_rows($sq)==0){
@@ -67,7 +65,7 @@ class module_chpass extends module_obj
 			$db_oldpass=mysql_result($sq,0);
 			if(strtolower($db_oldpass) != strtolower($_POST['c_oldpassword'])){
 				$tpl->setParam('c_msg',"Invalid Password");
-				$Cache->write($_POST['c_user'],"Invalid Password");
+				$system->cache->write($_POST['c_user'],"Invalid Password");
 				mysql_close($login_link);
 				return;}
 			mysql_query("UPDATE `accounts` set `password` = '".mysql_escape_string($_POST['c_password'])."',`encrypted_password`='".SHA1(strtoupper($_POST['c_user']).':'.strtoupper($_POST['c_password']))."' WHERE `login` = '{$c_sql_user}'",$login_link);
@@ -82,7 +80,7 @@ class module_chpass extends module_obj
 			if(count($dt)>0){
 				$logtxt .= " | LAST_IP_ACCOUNTS:[".implode($dt,",")."]";
 			}			
-			$logger->log($logtxt);
+			$system->log->log($logtxt);
 			mysql_close($login_link);
 			$tpl->setParam('c_msg','Done!');
 		}else{

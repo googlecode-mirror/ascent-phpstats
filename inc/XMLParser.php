@@ -77,7 +77,7 @@ class PEAR_XMLParser
      * @param string xml content
      * @return true|PEAR_Error
      */
-    function parse($data,$file,$k)
+    function parse($data,$file,$k=0)
     {
         if (!extension_loaded('xml')) {
             die("XML Extension not found");

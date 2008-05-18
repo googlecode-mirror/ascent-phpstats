@@ -1,18 +1,15 @@
 <td>&nbsp;</td></tr>
 <tr>
-	<td><center>{OPT_SLIST}</center></td>
-</tr>
-<tr>
 	<td>
 	<table width="100%" border="0" cellspacing="1" cellpadding="2">
 		<tr class="head">
 			<th colspan="7">Current Instances</th>
 		</tr>
 		<tr>
-			<th><a href="?m=onl&amp;serv={OPT_SERV}&amp;mord=map,{so_1}">Map (#)</a></th>
-			<th><center><a href="?m=onl&amp;serv={OPT_SERV}&amp;mord=players,{so_2}">Players</a></center></th>
-			<th><center><a href="?m=onl&amp;serv={OPT_SERV}&amp;mord=maxplayers,{so_3}">Player Limit</a></center></th>
-			<th><center><a href="?m=onl&amp;serv={OPT_SERV}&amp;mord=maptype,{so_4}">Type</a></center></th>
+			<th><a href="?m={mlnk}&amp;mord=map,{so_1}">Map (#)</a></th>
+			<th><center><a href="?m={mlnk}&amp;mord=players,{so_2}">Players</a></center></th>
+			<th><center><a href="?m={mlnk}&amp;mord=maxplayers,{so_3}">Player Limit</a></center></th>
+			<th><center><a href="?m={mlnk}&amp;mord=maptype,{so_4}">Type</a></center></th>
 			<th style="text-align:right">Creation Time</th>
 			<th style="text-align:right">Expiry Time</th>
 		</tr>
@@ -34,13 +31,13 @@
 			<th colspan="8">Online GMs</th>
 		</tr>
 		<tr>
-			<th><a href="?m=onl&amp;serv={OPT_SERV}&amp;pord=name,{so_5}">Name</a></th>
-			<th><center><a href="?m=onl&amp;serv={OPT_SERV}&amp;pord=race,{so_6}">Race</a></center></th>
-			<th><center><a href="?m=onl&amp;serv={OPT_SERV}&amp;pord=class,{so_7}">Class</a></center></th>
-			<th><center><a href="?m=onl&amp;serv={OPT_SERV}&amp;pord=level,{so_8}">Level</a></center></th>
+			<th><a href="?m={mlnk}&amp;pord=name,{so_5}">Name</a></th>
+			<th><center><a href="?m={mlnk}&amp;pord=race,{so_6}">Race</a></center></th>
+			<th><center><a href="?m={mlnk}&amp;pord=class,{so_7}">Class</a></center></th>
+			<th><center><a href="?m={mlnk}&amp;pord=level,{so_8}">Level</a></center></th>
 			<th><center>Permissions</center></th>
 			<th>Online Time</th>
-			<th style="text-align:right"><a href="?m=onl&amp;serv={OPT_SERV}&amp;pord=latency,{so_9}">Latency</a></th>
+			<th style="text-align:right"><a href="?m={mlnk}&amp;pord=latency,{so_9}">Latency</a></th>
 		</tr>
 
 <!--BeginGM-->
@@ -62,15 +59,15 @@
 			<th colspan="9">Online Players</th>
 		</tr>
 		<tr>
-			<th><a href="?m=onl&amp;serv={OPT_SERV}&amp;pord=name,{so_5}">Name</a></th>
-			<th><center><a href="?m=onl&amp;serv={OPT_SERV}&amp;pord=race,{so_6}">Race</a></center></th>
-			<th><center><a href="?m=onl&amp;serv={OPT_SERV}&amp;pord=class,{so_7}">Class</a></center></th>
+			<th><a href="?m={mlnk}&amp;pord=name,{so_5}">Name</a></th>
+			<th><center><a href="?m={mlnk}&amp;pord=race,{so_6}">Race</a></center></th>
+			<th><center><a href="?m={mlnk}&amp;pord=class,{so_7}">Class</a></center></th>
 			<th><center>Rank</center></th>
-			<th><center><a href="?m=onl&amp;serv={OPT_SERV}&amp;pord=level,{so_8}">Level</a></center></th>
-			<th><a href="?m=onl&amp;serv={OPT_SERV}&amp;pord=map,{so_10}">Map</a></th>
-			<th><a href="?m=onl&amp;serv={OPT_SERV}&amp;pord=areaid,{so_11}">Zone</a></th>
+			<th><center><a href="?m={mlnk}&amp;pord=level,{so_8}">Level</a></center></th>
+			<th><a href="?m={mlnk}&amp;pord=map,{so_10}">Map</a></th>
+			<th><a href="?m={mlnk}&amp;pord=areaid,{so_11}">Zone</a></th>
 			<th>Online Time</th>
-			<th style="text-align:right"><a href="?m=onl&amp;serv={OPT_SERV}&amp;pord=latency,{so_9}">Latency</a></th>
+			<th style="text-align:right"><a href="?m={mlnk}&amp;pord=latency,{so_9}">Latency</a></th>
 		</tr>
 <!--BeginPL-->
 		<tr>

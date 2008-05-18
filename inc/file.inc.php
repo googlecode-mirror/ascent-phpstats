@@ -848,6 +848,7 @@ function file_cmp($obj1, $obj2) {
             $field = 'getMTime';
             break;
     }
+    if(!isset($field))$field = 'getName';
     $str1 = strtolower($obj1->$field());
     $str2 = strtolower($obj2->$field());
     if ($str1 == $str2) {
