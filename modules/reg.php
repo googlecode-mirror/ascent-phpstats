@@ -41,7 +41,7 @@ class module_reg extends module_obj
 		return true;
 	}
 	function getdata(&$tpl){
-		global $system,$_CONFIG,$count_acc,$count_gm;
+		global $system,$_CONFIG,$count_acc,$count_gm,$is_admin;
 		$FormReg_CAPTCHA="sess_".md5(session_id()) . '.png';
 		$tpl->setParam("FormReg_msg","");
 		if($_SERVER['REQUEST_METHOD'] != 'POST')
@@ -55,17 +55,17 @@ class module_reg extends module_obj
 			$login_link=$system->mysql_login();
 			$ip = getenv('REMOTE_ADDR');
 			$isLastIP = mysql_result(mysql_query("SELECT count(`lastip`) FROM `accounts`  WHERE `lastip`='$ip'",$login_link),0);
-			if(!eregi("^[a-z,A-Z]", @$_POST['reg_password']) OR !eregi("^[a-z,A-Z]", @$_POST['reg_name']) OR $isLastIP>=$_CONFIG['max_acc_per_ip'] OR (strlen(@$_POST['reg_password'])<6 OR strlen(@$_POST['reg_password'])>32) OR (strlen(@$_POST['reg_name'])<4 OR strlen(@$_POST['reg_name'])>16) OR !Net_CheckIP::check_ip($ip) OR !string_isEmail(@$_POST['reg_email']) OR @$_POST['phrase'] != @$_SESSION['phrase'])
+			if(!eregi("^[a-z,A-Z]", @$_POST['reg_password']) OR !eregi("^[a-z,A-Z]", @$_POST['reg_name']) OR ($isLastIP>=$_CONFIG['max_acc_per_ip'] and !$is_admin) OR (strlen(@$_POST['reg_password'])<6 OR strlen(@$_POST['reg_password'])>32) OR (strlen(@$_POST['reg_name'])<4 OR strlen(@$_POST['reg_name'])>16) OR !Net_CheckIP::check_ip($ip) OR !string_isEmail(@$_POST['reg_email']) OR @$_POST['phrase'] != @$_SESSION['phrase'])
 			{
 				$body="<center>Error:</center><br />";
 				if(!eregi("^[a-z,A-Z]", @$_POST['reg_name'])){$body.="- Login must contain <b>ONLY</b> low or upper letters<br />";}
 				if(!eregi("^[a-z,A-Z]", @$_POST['reg_password'])){$body.="- Password must contain <b>ONLY</b> low or upper letters<br />";}
 				if(strlen(@$_POST['reg_password'])<6 OR strlen(@$_POST['reg_password'])>17){$body.="- Password must be 6 letters minimum<br />";}
 				if(strlen(@$_POST['reg_name'])<4 OR strlen(@$_POST['reg_name'])>16){$body.="- Login must contain from 4 to 16 letters<br />";}
-				if($isLastIP>=$_CONFIG['max_acc_per_ip']){$body.="- There is only ".$_CONFIG['max_acc_per_ip']." account per one ip address ({$isLastIP})<br />";}
-				if(!Net_CheckIP::check_ip($ip)){$body.="- you have invalid ip";}
-				if(@$_POST['phrase'] != @$_SESSION['phrase']){$body.="- text of the image invalid";}
-				if(!string_isEmail(@$_POST['reg_email'])){$body.="- you have invalid email";}
+				if($isLastIP>=$_CONFIG['max_acc_per_ip'] and !$is_admin){$body.="- There is only ".$_CONFIG['max_acc_per_ip']." account per one ip address ({$isLastIP})<br />";}
+				if(!Net_CheckIP::check_ip($ip)){$body.="- you have invalid ip<br />";}
+				if(@$_POST['phrase'] != @$_SESSION['phrase']){$body.="- text of the image invalid<br />";}
+				if(!string_isEmail(@$_POST['reg_email'])){$body.="- you have invalid email<br />";}
 				$tpl->setParam("FormReg_msg",$body);
 				$tpl->setParam('FormReg_user',@$_POST['reg_name']);
 				$tpl->setParam('FormReg_password',"");
@@ -82,9 +82,9 @@ class module_reg extends module_obj
 					if(!$this->make_CAPTCHA($tpl)) return;
 					$tpl->setParam('FormReg_CAPTCHA',"./Cache/" .$FormReg_CAPTCHA . "?" . time());
 				}else{
-					$username = htmlspecialchars(trim($_POST['reg_name']));
+					$username = mysql_escape_string(trim($_POST['reg_name']));
 					$passw = trim($_POST['reg_password']);
-					$email = htmlspecialchars(trim($_POST['reg_email']));
+					$email = mysql_escape_string(trim($_POST['reg_email']));
 					if(!$this->make_CAPTCHA($tpl)) return;
 					if(@mysql_query("INSERT INTO `accounts` (`login`,`password`,`encrypted_password`,`lastip`,`email`,`flags`) VALUES ('$username','$passw','".SHA1(strtoupper($username).':'.strtoupper($passw))."','$ip','$email','8')",$login_link))
 					{

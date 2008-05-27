@@ -47,6 +47,12 @@ $_CONFIG['MySQL_login_user']="CHANGE THIS";      //MySQL username
 $_CONFIG['MySQL_login_password']="CHANGE THIS";  //MySQL password
 $_CONFIG['MySQL_login_db']="ascent";             //your ascent login database name
 
+//WorldDB - need for some modules as lookup item
+$_CONFIG['MySQL_world_host']="localhost";      //MySQL database adress 
+$_CONFIG['MySQL_world_user']="root";      //MySQL username
+$_CONFIG['MySQL_world_password']="";  //MySQL password
+$_CONFIG['MySQL_world_db']="ascent-world";             //your ascent world database name
+
 //############################################################################
 //#
 //#         S A T I S T I C S     C O N F I G     P A R T

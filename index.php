@@ -6,6 +6,42 @@
 
 $_CONFIG=array();
 require_once './config.php';
+
+// Error logger
+function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars) 
+{
+    // define an assoc array of error string
+    // in reality the only entries we should
+    // consider are E_WARNING, E_NOTICE, E_USER_ERROR,
+    // E_USER_WARNING and E_USER_NOTICE
+    $errortype = array (
+                E_ERROR              => 'Error',
+                E_WARNING            => 'Warning',
+                E_PARSE              => 'Parsing Error',
+                E_NOTICE             => 'Notice',
+                E_CORE_ERROR         => 'Core Error',
+                E_CORE_WARNING       => 'Core Warning',
+                E_COMPILE_ERROR      => 'Compile Error',
+                E_COMPILE_WARNING    => 'Compile Warning',
+                E_USER_ERROR         => 'User Error',
+                E_USER_WARNING       => 'User Warning',
+                E_USER_NOTICE        => 'User Notice',
+                E_STRICT             => 'Runtime Notice',
+                E_RECOVERABLE_ERROR  => 'Catchable Fatal Error'
+                );
+    // set of errors for which a var trace will be saved
+    $user_errors = array(E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE);
+    if(E_STRICT==$errno OR E_NOTICE==$errno) return;
+    require_once dirname(__FILE__).'/inc/Log.php';
+    $logger=&Log::singleton('file', dirname(__FILE__).'/Cache/phperr.log', '', array('mode' => 0600, 'timeFormat' => '%X %x'));
+    if (in_array($errno, $user_errors))
+    $logger->log("PHP {$errortype[$errno]}: {$errmsg} in {$filename} on line {$linenum}, ".wddx_serialize_value($vars, "Variables"),PEAR_LOG_CRIT);
+    else
+    $logger->log("PHP {$errortype[$errno]}: {$errmsg} in {$filename} on line {$linenum}",PEAR_LOG_WARNING);
+}
+//error_reporting(0);
+$old_error_handler = set_error_handler("userErrorHandler");
+
 if(!is_array($_CONFIG['stats.xml']))$_CONFIG['stats.xml']=array($_CONFIG['stats.xml']);
 require_once './inc/basic.inc.php';
 $MTimer = new MTimer;

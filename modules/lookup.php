@@ -37,6 +37,11 @@ class module_lookup extends module_obj
 			}elseif(substr($_POST['c_user'],0,1)=="/"){
 				$acc=substr($_POST['c_user'],1,strlen($_POST['c_user'])-1);
 				$sq=mysql_query("SELECT `accounts`.`acct`, `accounts`.`login`, `accounts`.`lastip` FROM `accounts` WHERE `accounts`.`login` =  '".mysql_escape_string($acc)."'",$login_link);
+				if(mysql_num_rows($sq)==0){
+					$tpl->setParam('c_msg',"<center>Error:</center><br />"."account not exist");
+					mysql_close($login_link);
+					mysql_close($char_link);
+					return;}
 				$dr=mysql_fetch_array($sq);
 				$sq2[]=mysql_query("SELECT `accounts`.`acct`, `accounts`.`login`, `accounts`.`lastip` FROM `accounts` WHERE `accounts`.`lastip` =  '{$dr[2]}'",$login_link);
 			}else{

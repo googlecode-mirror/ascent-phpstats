@@ -8,6 +8,7 @@ require_once dirname(__FILE__).'/Pear.php';
 require_once dirname(__FILE__).'/Auth/HTTP.php';
 require_once dirname(__FILE__).'/Auth/Container.php';
 require_once dirname(__FILE__).'/TEXT/CAPTCHA.php';
+require_once dirname(__FILE__).'/HTML/BBCodeParser.php';
 class subsystem
 {
 	var $cache;
@@ -50,6 +51,10 @@ class subsystem
 				die("detected invalid post, maybe hack, ban time 5m");}
 			}
 		}
+		$config = parse_ini_file(dirname(__FILE__).'/BBCodeParser.ini', true);
+		$options = &PEAR::getStaticProperty('HTML_BBCodeParser', '_options');
+		$options = $config['HTML_BBCodeParser'];
+		$options['open']="[";
 	}
 	function ban($ip,$time,$reason){
 		$this->cache->open("./Cache/ban",NULL);
@@ -57,7 +62,7 @@ class subsystem
 	}
 	function is_online($name){
 		$xml=@$this->xml['sessions']['plr'];
-		if(!isset($xml[0])){
+		if(isset($xml) and !is_array($xml) and !isset($xml[0])){
 			$xml=array(0=>$xml);
 		}
 		foreach($xml as $i=>$data) if($data['name']==$name) return true;
@@ -70,7 +75,7 @@ class subsystem
 		$this->auth=new Auth_HTTP("BZ", array('enableLogging'=>false));
 		$this->auth->logger=&Log::singleton('file', dirname(dirname(__FILE__)).'/Cache/sess_log.txt', '', $_CONFIG['log']);
 		$this->auth->setRealm('WoW Server', 'sample');
-		$this->auth->setIdle(1200); #60 min idle
+		$this->auth->setIdle(18000); #5 h idle
 		//$this->auth->setAdvancedSecurity();
 	}
 	function links(&$tpl){
@@ -196,6 +201,14 @@ class subsystem
 		return $login_link;
 		
 	}
+	function mysql_world(){
+		global $_CONFIG;
+		$world_link=@mysql_connect($_CONFIG['MySQL_world_host'],$_CONFIG['MySQL_world_user'],$_CONFIG['MySQL_world_password'],true) or trigger_error("MySQL Err<br /> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
+		if(!@mysql_select_db($_CONFIG['MySQL_world_db'],$world_link))
+		 trigger_error("MySQL Err<br /> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
+		return $world_link;
+		
+	}
 	function mysql_connect(){
 		if(!is_array($this->sl) and !isset($this->sl[$this->as])) $srv=$this->sl[0]['mysql'];
 		else
@@ -204,6 +217,12 @@ class subsystem
 		if(!@mysql_select_db($srv["db"],$char_link))
 		 trigger_error("MySQL Err<br> ".mysql_errno() . ": " . mysql_error() . "\n", E_USER_ERROR);
 		return $char_link;
+	}
+	function cleanup_array_mysql($arr){
+		if(!is_array($arr) or count($arr)<1) return $arr;
+		foreach($arr as $k => $v)
+			if($k>0 and $k<32676) unset($arr[$k]);
+		return $arr;
 	}
 	function appysid($id){
 		if(!is_array($this->sl) and !isset($this->sl[$this->as]['sid']) and !is_array($this->sl[$this->as])) return $id;

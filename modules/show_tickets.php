@@ -54,14 +54,17 @@ class module_show_tickets extends module_obj
 			$n="Name:{$val['name']}({$val['level']})"."\n<br/> id:{$val['guid']}<br/>";
 			if($isonline) $n.="Online"; else $n.="Offline";
 			if($is_admin){// $n.="<hr/>";
-				if(isset($system->mods->mods['uns']) AND !$isonline) $n.="<hr/><a href=\"?m=".$this->getlink()."&amp;act=unstuck&amp;name={$val['name']}\">UNSTUCK</a>";
+				if(isset($system->mods->mods['uns']) AND !$isonline) $n.="<hr/><a href=\"?m=".$this->getlink()."&amp;act=unstuck&amp;cname={$val['name']}\">UNSTUCK</a>";
 				if(isset($system->mods->mods['lookup'])) $n.="<hr/><a href=\"?m=lookup&amp;char={$val['name']}\">LOOKUP</a>";
 
 				$n.="<hr/>&nbsp;<br/><a href=\"?m=".$this->getlink()."&amp;act=del&amp;id={$val['guid']}\">DELETE</a>";
 			}
 			
 			$tpl->setParam('ST_ID',$n);
-			$tpl->setParam('ST_MESS',str_replace("\n","<br/>",$val['message']));
+			$parser = new HTML_BBCodeParser();
+			$parser->setText(nl2br(htmlentities($val['message'],HTML_ENTITIES,'UTF-8')));
+			$parser->parse();
+			$tpl->setParam('ST_MESS',$parser->getParsed());
 			$tpl->setParam('ST_TIME', date("H:i:s d.m.y",$val['timestamp']));
 			$tpl->parseParam('ST', 'STDynamic', true);
 		}
