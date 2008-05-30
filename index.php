@@ -34,9 +34,9 @@ function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars)
     if(E_STRICT==$errno OR E_NOTICE==$errno) return;
     require_once dirname(__FILE__).'/inc/Log.php';
     $logger=&Log::singleton('file', dirname(__FILE__).'/Cache/phperr.log', '', array('mode' => 0600, 'timeFormat' => '%X %x'));
-    if (in_array($errno, $user_errors))
-    $logger->log("PHP {$errortype[$errno]}: {$errmsg} in {$filename} on line {$linenum}, ".wddx_serialize_value($vars, "Variables"),PEAR_LOG_CRIT);
-    else
+    //if (in_array($errno, $user_errors))
+    //$logger->log("PHP {$errortype[$errno]}: {$errmsg} in {$filename} on line {$linenum}, ".wddx_serialize_value($vars, "Variables"),PEAR_LOG_CRIT);
+    //else
     $logger->log("PHP {$errortype[$errno]}: {$errmsg} in {$filename} on line {$linenum}",PEAR_LOG_WARNING);
 }
 //error_reporting(0);

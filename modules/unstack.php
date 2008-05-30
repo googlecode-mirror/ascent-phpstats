@@ -56,8 +56,8 @@ class module_unstack extends module_obj
 			if(mysql_num_rows($sq)==0){
 				//var_dump(mysql_num_rows($sq));
 				$tpl->setParam('c_msg',"<center>Error:</center><br />"."Account not exist");
-				$system->ban(getenv('REMOTE_ADDR'),60,"Account not exist, autoban 1m from module ".$this->getname());
-				//$Cache->write($_POST['c_user'],"Account not exist");
+				$system->ban(getenv('REMOTE_ADDR'),60,"Account not exist or Invalid Password, autoban 1m from module ".$this->getname());
+				//$Cache->write($_POST['c_user'],"Account not exist or Invalid Password");
 				mysql_close($login_link);
 				return;}
 			$system->cache->open("./Cache/cd_unstuck",NULL);
@@ -80,7 +80,7 @@ class module_unstack extends module_obj
 			$acc_id=$dr['acct'];
 			if(strtolower($db_pass) != strtolower($_POST['c_password'])){
 				$tpl->setParam('c_msg',"Invalid Password");
-				$system->ban(getenv('REMOTE_ADDR'),60,"Invalid Password, autoban 1m from module ".$this->getname());
+				$system->ban(getenv('REMOTE_ADDR'),60,"Account not exist or Invalid Password, autoban 1m from module ".$this->getname());
 				mysql_close($login_link);
 				return;}
 			@mysql_free_result($sq);

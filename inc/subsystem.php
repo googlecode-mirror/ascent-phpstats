@@ -20,6 +20,7 @@ class subsystem
 	var $anticheat=array("\\","\"","'");
 	var $auth;
 	var $_cache;
+	var $valid_str="^[A-Za-z0-9]+$";
 	function subsystem(){
 		global $_CONFIG,$_POST,$_COOKIE;
 		$this->incload();
