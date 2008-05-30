@@ -39,10 +39,10 @@ class module_unstack extends module_obj
 			if(strlen(@$_POST['c_password'])<6 OR strlen(@$_POST['c_password'])>32){
 				$tpl->setParam('c_msg',"<center>Error:</center><br />"."Password must be 6 letters minimum");
 				return;}
-			if(!eregi("^[a-z,A-Z]", @$_POST['c_password'])){
+			if(!eregi($system->valid_str, @$_POST['c_password'])){
 				$tpl->setParam('c_msg',"<center>Error:</center><br />"."Password must contain <b>ONLY</b> low or upper letters");
 				return;}
-			if(!eregi("^[a-z,A-Z]", @$_POST['c_char'])){
+			if(!eregi($system->valid_str, @$_POST['c_char'])){
 				$tpl->setParam('c_msg',"<center>Error:</center><br />"."char must contain <b>ONLY</b> low or upper letters");
 				return;}
 			$c_sql_user=mysql_escape_string($_POST['c_user']);
