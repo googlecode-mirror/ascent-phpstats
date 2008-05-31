@@ -4,7 +4,7 @@ require_once dirname(__FILE__).'/template.inc.php';
 require_once dirname(__FILE__).'/sgfiles.inc.php';
 require_once dirname(__FILE__).'/file.inc.php';
 require_once dirname(__FILE__).'/dir.inc.php';
-require_once dirname(__FILE__).'/Pear.php';
+require_once dirname(__FILE__).'/PEAR.php';
 require_once dirname(__FILE__).'/Auth/HTTP.php';
 require_once dirname(__FILE__).'/Auth/Container.php';
 require_once dirname(__FILE__).'/TEXT/CAPTCHA.php';
@@ -20,7 +20,7 @@ class subsystem
 	var $anticheat=array("\\","\"","'");
 	var $auth;
 	var $_cache;
-	var $valid_str="^[A-Za-z0-9]+$";
+	var $valid_str='^[A-Za-z0-9]+$';
 	function subsystem(){
 		global $_CONFIG,$_POST,$_COOKIE;
 		$this->incload();
