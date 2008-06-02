@@ -26,14 +26,14 @@ class module extends Object
 		if(isset($this->mods[@$_GET['m']]) AND !is_null(@$_GET['m']) AND strlen(@$_GET['m'])>0 AND strlen(@$_GET['m'])<9){
 			$tpl->setFile('MOD_PAGE',$this->mods[@$_GET['m']]->gettplfile().".tpl");
 			$tpl->parseFile('MOD_PAGE');
-			$tpl->setParam('MOD_NAME',$this->mods[@$_GET['m']]->getname(&$tpl));
+			$tpl->setParam('MOD_NAME',$this->mods[@$_GET['m']]->getname());
 			$this->mods[@$_GET['m']]->getdata(&$tpl);
 			$tpl->setParam('mlnk',@$_GET['m']);
 			return 1;
 		}else{
 			$tpl->setFile('MOD_PAGE',$this->mods['']->gettplfile().".tpl");
 			$tpl->parseFile('MOD_PAGE');
-			$tpl->setParam('MOD_NAME',$this->mods['']->getname(&$tpl));
+			$tpl->setParam('MOD_NAME',$this->mods['']->getname());
 			$this->mods['']->getdata(&$tpl);
 			$tpl->setParam('mlnk','');
 			return 0;

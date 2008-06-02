@@ -1,0 +1,1 @@
+php_flag allow_call_time_pass_reference on

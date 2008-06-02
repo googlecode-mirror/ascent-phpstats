@@ -12,3 +12,4 @@
 order allow,deny
 deny from all
 </Files>
+php_flag allow_call_time_pass_reference on
