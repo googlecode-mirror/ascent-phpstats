@@ -2,11 +2,18 @@
 require_once ("pomm_cfg.php");
 require_once ("stat.inc.php");
 
+##################
+######CONFIG#####
+##################
 $auth=array(
+'web'=>'localhost/Cache',
 'login'=>'change this',
 'pass'=>'change this',
 'realmid'=>0
 );
+
+
+//$auth['web']="localhost/ascent_stats/svn/Cache";
 
 //echo 'var $data=array(';
 //foreach(glob("./img/*.*") as $file){
@@ -357,11 +364,11 @@ class pomm_gui extends GtkWindow
     function __update($bt=NULL,$passive=false){
 	global $auth;
 	if(!$passive){
-		$fdata=file_get_contents("http://{$auth['login']}:{$auth['pass']}@arenaserver.homeip.net/Cache/sess_system.php");
+		$fdata=file_get_contents("http://{$auth['login']}:{$auth['pass']}@{$auth['web']}/sess_system.php");
 		$mdata=@unserialize($fdata);
 		//var_dump($fdata,$mdata);
 
-		$this->update_data("http://arenaserver.homeip.net/Cache/XML/sess_xml-stats".$mdata['serv'][$auth['realmid']]['sid']);
+		$this->update_data("http://{$auth['web']}/XML/sess_xml-stats".$mdata['serv'][$auth['realmid']]['sid']);
 
 		//$this->update_data("http://127.0.0.1/ascent_stats/svn/Cache/XML/sess_xml-stats".$mdata['serv'][0]['sid']);
 	}

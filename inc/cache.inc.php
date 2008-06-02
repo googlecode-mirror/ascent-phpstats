@@ -80,7 +80,7 @@ if(is_array($db_info))
 	$result=mysql_query("SELECT count(*) FROM `accounts`",$login_link);
 	$count_acc=mysql_result($result,0);
 	@mysql_free_result($result);
-	$result=mysql_query("SELECT count(*) FROM `accounts` WHERE `gm` NOT LIKE ''",$login_link);
+	$result=mysql_query("SELECT count(*) FROM `accounts` WHERE `gm` NOT LIKE '' AND `gm` NOT LIKE 0",$login_link);
 	$count_gm=@mysql_result($result,0);
 	$frt=array("count_acc"=>$count_acc,"count_gm"=>$count_gm);
 	$system->cache->write("account",serialize($frt));
