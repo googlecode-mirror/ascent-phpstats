@@ -22,10 +22,10 @@ class module_chpass extends module_obj
 			if(strlen($_POST['c_user'])<2){
 				$tpl->setParam('c_msg','<center>Error:</center><br />'.'Account name... INVALID!');
 				return;}
-			if(strlen(@$_POST['c_password'])<6 OR strlen(@$_POST['c_password'])>32){
+			if(strlen(@$_POST['c_password'])<6 OR strlen(@$_POST['c_password'])>16){
 				$tpl->setParam('c_msg',"<center>Error:</center><br />"."Password must be 6 letters minimum");
 				return;}
-			if(strlen(@$_POST['c_repassword'])<6 OR strlen(@$_POST['c_repassword'])>32){
+			if(strlen(@$_POST['c_repassword'])<6 OR strlen(@$_POST['c_repassword'])>16){
 				$tpl->setParam('c_msg',"Re Password must be 6 letters minimum");
 				return;}
 			if(!eregi($system->valid_str, @$_POST['c_password'])){
@@ -59,7 +59,7 @@ class module_chpass extends module_obj
 			if(mysql_num_rows($sq)==0){
 				//var_dump(mysql_num_rows($sq));
 				$tpl->setParam('c_msg',"<center>Error:</center><br />"."Account not exist");
-				$Cache->write($_POST['c_user'],"Account not exist or Invalid Password");
+				$system->cache->write($_POST['c_user'],"Account not exist or Invalid Password");
 				mysql_close($login_link);
 				return;}
 			$db_oldpass=mysql_result($sq,0);
