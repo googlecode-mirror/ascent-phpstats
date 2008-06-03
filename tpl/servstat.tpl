@@ -22,8 +22,8 @@
 			<td align="center" nowrap="nowrap">{S_8}</td>
 		</tr>
 		<tr>
-			<td></td>
-			<td align="center"></td>
+			<th align="center">Time AP</th>
+			<td align="center">{S_25}</td>
 			<th align="center">Draenei</th>
 			<td align="center" nowrap="nowrap">{S_10}</td>
 			<th align="center">Blood Elf</th>
@@ -31,7 +31,7 @@
 		</tr>
 		<tr>
 			<td></td>
-			<td align="center"></td>
+			<td align="center">{S_26}</td>
 			<th align="center">Night Elf</th>
 			<td align="center" nowrap="nowrap">{S_13}</td>
 			<th align="center">Orc</th>

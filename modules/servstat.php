@@ -29,6 +29,14 @@ if(is_array($db_info))
 	unset($db_info);
 }else{
 	$char_link=$system->mysql_connect();
+	$query_lastap=mysql_query("SELECT * FROM `server_settings` WHERE `setting_id` = 'last_arena_update_time'",$char_link);
+	if(mysql_num_rows($query_lastap)!=1) $lastap="-";
+	else{
+		$lastap = mysql_fetch_array($query_lastap);
+		$lastap=$lastap['setting_value'];
+	} 
+	@mysql_free_result($query_lastap);
+
 	$result1=mysql_query("SELECT `race`,`class` FROM `characters` WHERE `level`>".$_CONFIG["lvlmin"],$char_link);
 	$c=mysql_num_rows($result1);
 	$races=array("Human"=>0,"Orc"=>0,"Dwarf"=>0,"Night Elf"=>0,"Undead"=>0,"Tauren"=>0,"Gnom"=>0,"Troll"=>0,"Blood Elf"=>0,"Draenei"=>0);
@@ -90,7 +98,7 @@ if(is_array($db_info))
 	@mysql_free_result($result1);
 
 	@mysql_free_result($result);
-	$frt=array("classes"=>$classes,"ally"=>$ally,"races"=>$races,"c"=>$c);
+	$frt=array("classes"=>$classes,"ally"=>$ally,"races"=>$races,"c"=>$c,"lastap"=>$lastap);
 	$system->cache->write("characters",serialize($frt));
 	mysql_close($char_link);
 }
@@ -131,6 +139,22 @@ if($c<1)
 	$tpl->setParam('S_22',round(($classes['Warlock'] * 100 ) / $c) ."%(".number_format($classes['Warlock']).")");
 	$tpl->setParam('S_23',round(($classes['Druid'] * 100 ) / $c) ."%(".number_format($classes['Druid']).")");
 }	
+//-----
+if(!isset($lastap) or $lastap=="-"){
+	$tpl->setParam('S_25','-');
+	$tpl->setParam('S_26','');
+}else{
+	$dayofap=$lastap+604800;
+	if(isset($_CONFIG['TIME_LOCALE']) AND isset($_CONFIG['TIME_CODEPAGE'])){
+		setlocale(LC_TIME, $_CONFIG['TIME_LOCALE']);
+		$tpl->setParam('S_25',iconv($_CONFIG['TIME_CODEPAGE'], 'UTF-8',strftime("%A",$dayofap))); //H:i:s //d.m.Y date("l dS of F Y",$dayofap)
+		$tpl->setParam('S_26',date("d.m.Y",$dayofap));
+	}else{
+		$tpl->setParam('S_25',strftime("%A",$dayofap)); //H:i:s //d.m.Y date("l dS of F Y",$dayofap)
+		$tpl->setParam('S_26',date("d.m.Y",$dayofap));
+	}
+
+}
 //-----
 extract($system->cache->c_get("MySQL","account",array('_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
 $tpl->setParam('S_1',number_format($count_acc));
