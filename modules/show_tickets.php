@@ -62,9 +62,9 @@ class module_show_tickets extends module_obj
 			
 			$tpl->setParam('ST_ID',$n);
 			$parser = new HTML_BBCodeParser();
-			$parser->setText(nl2br(htmlentities($val['message'],HTML_ENTITIES,'UTF-8')));
+			$parser->setText(htmlentities($val['message'],HTML_ENTITIES,'UTF-8'));
 			$parser->parse();
-			$tpl->setParam('ST_MESS',$parser->getParsed());
+			$tpl->setParam('ST_MESS',nl2br($parser->getParsed()));
 			$tpl->setParam('ST_TIME', date("H:i:s d.m.y",$val['timestamp']));
 			$tpl->parseParam('ST', 'STDynamic', true);
 		}

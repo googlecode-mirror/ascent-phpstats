@@ -34,6 +34,13 @@ class module_lookup extends module_obj
 				$dr1=array();
 				$dr1[2]=$_POST['c_user'];
 				$sq2[]=mysql_query("SELECT `accounts`.`acct`, `accounts`.`login`, `accounts`.`lastip` FROM `accounts` WHERE `accounts`.`lastip` =  '{$dr1[2]}'",$login_link);
+			}elseif($_POST['c_user']=="/_online"){
+				$acc=array();
+				$sq1=NULL;
+				$sq=mysql_query("SELECT `characters`.`acct`, `characters`.`guid`, `characters`.`name` FROM `characters` WHERE `characters`.`online` =  1;",$char_link);
+				while ($dr1=@mysql_fetch_array($sq)){
+					$sq2[]=mysql_query("SELECT `accounts`.`acct`, `accounts`.`login`, `accounts`.`lastip` FROM `accounts` WHERE `accounts`.`acct`={$dr1[0]}",$login_link);
+				}
 			}elseif(substr($_POST['c_user'],0,1)=="/"){
 				$acc=substr($_POST['c_user'],1,strlen($_POST['c_user'])-1);
 				$sq=mysql_query("SELECT `accounts`.`acct`, `accounts`.`login`, `accounts`.`lastip` FROM `accounts` WHERE `accounts`.`login` =  '".mysql_escape_string($acc)."'",$login_link);
@@ -69,7 +76,7 @@ class module_lookup extends module_obj
 				while ($dr2 = @mysql_fetch_array($sql))
 				{
 					$data["{$dr2['login']} ({$dr2['acct']})"]=array();
-					$sq3=mysql_query("SELECT `characters`.`name`, `characters`.`level`, `characters`.`race`, `characters`.`class`, `characters`.`gender` FROM `characters` WHERE `characters`.`acct` =  '{$dr2[0]}' ORDER BY `characters`.`level` DESC",$char_link);
+					$sq3=mysql_query("SELECT `characters`.`name`, `characters`.`level`, `characters`.`race`, `characters`.`class`, `characters`.`gender`, `characters`.`auras` FROM `characters` WHERE `characters`.`acct` =  '{$dr2[0]}' ORDER BY `characters`.`level` DESC",$char_link);
 					while ($dr3 = @mysql_fetch_array($sq3)){
 						$dr3['isonline']=$system->is_online($dr3['name']);
 						$data["{$dr2['login']} ({$dr2['acct']})"][]=$dr3;
@@ -84,6 +91,8 @@ class module_lookup extends module_obj
 			mysql_close($char_link);
 			if(Net_CheckIP::check_ip($_POST['c_user']))
 			$msg="Done! for ip {$_POST['c_user']}<br/>\n ";
+			elseif($_POST['c_user']=="/_online")
+			$msg="Done!<br/>\n";
 			elseif(substr($_POST['c_user'],0,1)=="/")
 			$msg="Done! for ip {$dr[2]} owner (acc {$acc})<br/>\n ";
 			else
@@ -94,10 +103,38 @@ class module_lookup extends module_obj
 				foreach($chars as $char){
 					$msg.="<img src=\"icon/class/{$char['class']}.gif\" alt=\"{$base_class[$char['class']]}\" />&nbsp;<img src=\"icon/race/{$char['race']}-{$char['gender']}.gif\" alt=\"{$base_race[$char['race']]}\" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$char['name']} ({$char['level']}) ";
 					if($char['isonline']) $msg.="Online"; else $msg.="Offline";
+					if(strlen($char['auras'])>0){
+						$msg.="<br/>";
+						$au=explode(",",$char['auras']);
+						$ii=count($au)-2; $i=0;
+						while($i<=$ii){
+							switch($au[$i]){
+								case 32727:
+								$msg.="[color=red]ARENA_PREPARATION({$au[$i]})[/color] ";
+								break;
+								case 32725:
+								case 35775:
+								$msg.="[color=red]ARENA_FLAG_GREEN({$au[$i]})[/color] ";
+								break;
+								case 35774:
+								case 32724:
+								$msg.="[color=red]ARENA_FLAG_GOLD({$au[$i]})[/color] ";
+								break;
+								default:
+								$msg.="{$au[$i]} ";
+							}
+							
+							$i=$i+2;
+						}
+						
+					}
 					$msg.="<br/><br/>\n";
 				}
 			}
-			$tpl->setParam('c_msg',$msg);
+			$options = &PEAR::getStaticProperty('HTML_BBCodeParser', '_options');
+			$options['filters']="Basic,Extended,Images,Links,Lists,Email";
+			unset($options);
+			$tpl->setParam('c_msg',HTML_BBCodeParser::staticQparse($msg));
 		}else{
 			$tpl->setParam('c_msg','');
 			$tpl->setParam('c_user','');

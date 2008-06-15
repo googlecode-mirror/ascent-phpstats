@@ -1,7 +1,6 @@
 <?php 
 class module_online extends module_obj
 {
-	var $serv=0;
 	function ismenu(){
 		return 1;
 	}
@@ -50,21 +49,7 @@ if(isset($_GET) AND isset($_GET['pord'])){
 	$tpl->setParam('so_11',1);
 }
 
-if(is_array(@$system->xml['instances']))
-{
-	$list_inst=@$system->xml['instances']['instance'];
-}else{
-	$list_inst=array();
-}
-if(!is_array($list_inst) OR count($list_inst)<1)
-{
-	$list_inst=array();
-}else{
-	if(!isset($list_inst[0])){
-		$list_inst=array(0=>$list_inst);
-	}
-	usort($list_inst,"sortbyplayers");
-}
+$list_inst=$system->xml['instances']['instance'];
 
 foreach ($list_inst as $key => $val) {
 	if(isset($base_map[$val['map']]))
@@ -97,21 +82,8 @@ foreach ($list_inst as $key => $val) {
 	$tpl->parseParam('Inst', 'InstDynamic', true);
 }
 $tpl->setParam('Inst', $tpl->getParam('InstDynamic'));
-if(is_array(@$system->xml['gms']))
-{
-	$list_gm=@$system->xml['gms']['gmplr'];
-}else{
-	$list_gm=array();
-}
-if(!is_array($list_gm) OR count($list_gm)<1)
-{
-	$list_gm=array();
-}else{
-	if(!isset($list_gm[0])){
-		$list_gm=array(0=>$list_gm);
-	}
-	usort($list_gm,"sortbylevel");
-}
+
+$list_gm=$system->xml['gms']['gmplr'];
 
 foreach ($list_gm as $key => $val) {
 	if(!$_CONFIG['showgm'] and !$is_admin) break;
@@ -131,21 +103,9 @@ foreach ($list_gm as $key => $val) {
 	$tpl->parseParam('GM', 'GMDynamic', true);
 }
 $tpl->setParam('GM', $tpl->getParam('GMDynamic'));
-if(is_array(@$system->xml['sessions']))
-{
-	$list_pl=@$system->xml['sessions']['plr'];
-}else{
-	$list_pl=array();
-}
-if(!is_array($list_pl) OR count($list_pl)<1)
-{
-	$list_pl=array();
-}else{
-	if(!isset($list_pl[0])){
-		$list_pl=array(0=>$list_pl);
-	}
-	usort($list_pl,"sortbylevel");
-}
+
+$list_pl=$system->xml['sessions']['plr'];
+
 foreach ($list_pl as $key => $val) {
 	if($is_admin)
 	$tpl->setParam('PL_name',"<a href=\"?m=lookup&amp;char={$val['name']}\">{$val['name']}</a>");

@@ -37,6 +37,7 @@ function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars)
     //if (in_array($errno, $user_errors))
     //$logger->log("PHP {$errortype[$errno]}: {$errmsg} in {$filename} on line {$linenum}, ".wddx_serialize_value($vars, "Variables"),PEAR_LOG_CRIT);
     //else
+    if($errmsg!="mysql_free_result(): supplied argument is not a valid MySQL result resource")
     $logger->log("PHP {$errortype[$errno]}: {$errmsg} in {$filename} on line {$linenum}",PEAR_LOG_WARNING);
 }
 //error_reporting(0);
@@ -91,7 +92,7 @@ $system->buildservlist();
 		$xml_stats->close();
 	}
 extract($system->cache->c_get("XML","xml-stats",array('xml_time'=>$xml_time,'_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
-
+$system->xmlfix();
 $tpl= new Template($_CONFIG['tpl']);
 $tpl->setFile('page',"main.tpl");
 $tpl->parseFile('page');

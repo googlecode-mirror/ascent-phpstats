@@ -182,4 +182,9 @@ if(!function_exists('get_headers'))
 	       }
 	   }
 }
+if (!function_exists('iconv') && function_exists('libiconv')) {
+    function iconv($input_encoding, $output_encoding, $string) {
+        return libiconv($input_encoding, $output_encoding, $string);
+    }
+}
 ?>
