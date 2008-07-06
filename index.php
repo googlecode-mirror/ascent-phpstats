@@ -93,9 +93,19 @@ $system->buildservlist();
 	}
 extract($system->cache->c_get("XML","xml-stats",array('xml_time'=>$xml_time,'_CONFIG'=>$_CONFIG)),EXTR_OVERWRITE);
 $system->xmlfix();
-$tpl= new Template($_CONFIG['tpl']);
-$tpl->setFile('page',"main.tpl");
-$tpl->parseFile('page');
+if(count($system->tpl)<1) die("Error, tpl not found");
+
+$tpl = new Template($system->_root.$_CONFIG['tpl'].$system->tpl[$_SESSION['tplsl']]['name']."/");
+if($tpl->setFile('page',"main.tpl")) $tpl->parseFile('page');
+else{
+	if($_SESSION['tplsl']==$system->d_tpl) die("Error, ".$system->_root.$_CONFIG['tpl'].$system->tpl[$_SESSION['tplsl']]['name']."/main.tpl"." not found");
+	else{
+		$_SESSION['tplsl']=$system->d_tpl;
+		$tpl = new Template($system->_root.$_CONFIG['tpl'].$system->tpl[$_SESSION['tplsl']]['name']."/");
+		if($tpl->setFile('page',"main.tpl")) $tpl->parseFile('page');
+		else die("Error, ".$system->_root.$_CONFIG['tpl'].$system->tpl[$_SESSION['tplsl']]['name']."/main.tpl"." not found");
+	}
+}
 
 $system->mods->load();
 
@@ -111,10 +121,12 @@ if(!$_CONFIG['logo']){
 }else{
 	$tpl->setParam('PAGE_logo',"<img width=770 src=\"{$_CONFIG['logo']}\" alt=\"Logo\"/>");
 }
-$fcss=new File("server_stats.css", 'r');
+$fcss=new File($system->_root.$_CONFIG['tpl'].$system->tpl[$_SESSION['tplsl']]['name']."/server_stats.css", 'r');
 if($fcss->open()){
 	$tpl->setParam('CSS',$fcss->read());
 	$fcss->close();
+}else{
+	$tpl->setParam('CSS','');
 }
 
 $system->links(&$tpl);
@@ -148,5 +160,5 @@ $tpl->setParam('PS_INFO',"Gzip {$gzpstatus}, time build page ".round($MTimer->st
 					<a href=\"http://validator.w3.org/check/referer\" target=\"_blank\"><img id=\"valid-xhtml10\" src=\"icon/valid-xhtml10.gif\" alt=\"Valid XHTML 1.0!\" width=\"54\" height=\"20\" style=\"margin: 5px 16px;\" /></a>
 					<a href=\"http://jigsaw.w3.org/css-validator/check/referer\" target=\"_blank\"><img id=\"valid-css\" src=\"icon/valid-css.gif\" alt=\"Valid CSS!\" width=\"54\" height=\"20\" style=\"margin: 5px 16px;\" /></a>");
 $tpl->parseParam('page');
-$tpl->printParam('page',true);
+$tpl->printParam('page',false);
 ?>

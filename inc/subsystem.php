@@ -20,12 +20,16 @@ class subsystem
 	var $anticheat=array("\\","\"","'");
 	var $auth;
 	var $_cache;
+	var $_root;
 	var $valid_str='^[A-Za-z0-9]+$';
+	var $tpl=array();
+	var $d_tpl=0;
 	function subsystem(){
 		global $_CONFIG,$_POST,$_COOKIE;
 		$this->incload();
 		$this->log=&Log::singleton('file', dirname(dirname(__FILE__)).'/Cache/weblog.log', '', $_CONFIG['log']);
 		$this->_cache=dirname(dirname(__FILE__))."/Cache";
+		$this->_root=dirname(dirname(__FILE__));
 		$this->info=$this->cs();
 		if(!$this->info) $this->info=$this->ns();
 		$this->mods=new module();
@@ -52,6 +56,24 @@ class subsystem
 				die("detected invalid post, maybe hack, ban time 5m");}
 			}
 		}
+		// load tpls
+		foreach(glob($this->_root.$_CONFIG['tpl']."/*.ini") as $fname){
+			$cfg=parse_ini_file($fname,true);
+			foreach($cfg as $id=>$data){
+				if($data["dname"]==$_CONFIG['tpl_default'])
+				$this->d_tpl=count($this->tpl);
+				if($data["status"])
+				$this->tpl[]=$data;
+			}
+		}
+		if(count($this->tpl)>1){
+			$t=$this->tpl;
+			if(isset($_GET) AND isset($_GET['t']) AND isset($t[$_GET['t']])){
+				$_SESSION['tplsl']=(int)$_GET['t'];
+			}
+		}
+
+		// load bbcode user conf
 		$config = parse_ini_file(dirname(__FILE__).'/BBCodeParser.ini', true);
 		$options = &PEAR::getStaticProperty('HTML_BBCodeParser', '_options');
 		$options = $config['HTML_BBCodeParser'];
@@ -62,10 +84,7 @@ class subsystem
 		$this->cache->write($ip,serialize(array('ip'=>$ip,'time'=>$time,'reason'=>$reason,'tn'=>mktime())),true);
 	}
 	function is_online($name){
-		$xml=@$this->xml['sessions']['plr'];
-		if(isset($xml) and !is_array($xml) and !isset($xml[0])){
-			$xml=array(0=>$xml);
-		}
+		$xml=$this->xml['sessions']['plr'];
 		foreach($xml as $i=>$data) if($data['name']==$name) return true;
 		return false;
 	}
@@ -73,6 +92,17 @@ class subsystem
 		global $_CONFIG;
 		session_save_path(dirname(dirname(__FILE__))."\\Cache\\sid\\");
 		@session_start();
+		// tpl
+		if(!isset($_SESSION['tplmd5']))	$_SESSION['tplmd5']=md5(serialize($this->tpl));
+		else{
+			if($_SESSION['tplmd5']!=md5(serialize($this->tpl))){
+				$_SESSION['tplsl']=$this->d_tpl;
+				$_SESSION['tplmd5']=md5(serialize($this->tpl));
+			}
+		}	
+		if(!isset($_SESSION['tplsl'])) $_SESSION['tplsl']=$this->d_tpl;
+
+		// Auth Config
 		$this->auth=new Auth_HTTP("BZ", array('enableLogging'=>false));
 		$this->auth->logger=&Log::singleton('file', dirname(dirname(__FILE__)).'/Cache/sess_log.txt', '', $_CONFIG['log']);
 		$this->auth->setRealm('WoW Server', 'sample');
@@ -83,11 +113,11 @@ class subsystem
 		global $_GET,$_CONFIG,$is_admin;
 		$amod = @$_GET['m'];
 		$mods=$this->mods->mods;
-		$tr="<h2>Modules</h2><form>";
+		$tr="<h2>Modules</h2><form action=\"GET\">";
 		foreach($mods as $key => $val){
 			if($val->ismenu() OR $is_admin){
 				if($amod==$key)
-				$tr.="<input type=\"button\" class=\"button\" value=\"".$val->getname()."\" onClick=\"return false;\" />";
+				$tr.="<input type=\"button\" class=\"button\" value=\"&gt;".$val->getname()."&lt;\" onClick=\"return false;\" />";
 				else
 				$tr.="<input type=\"button\" class=\"button\" value=\"".$val->getname()."\" onClick=\"window.location='?m={$key}'\" />";
 				//$tr.="<a href=\"?m=".$key."\">".$val->getname()."</a> | ";
@@ -96,14 +126,24 @@ class subsystem
 		
 		$servs=$this->sl;
 		if(count($servs)>1){
-			$tr.="</form><pre/><h2>Servers</h2>";
+			$tr.="</form><pre/><h2>Servers</h2><form action=\"GET\">";
 			foreach($servs as $id =>$data){
 				if($this->as==$id)
-				$tr.="<input type=\"button\" style=\"width:120px\" class=\"button\" value=\"{$data['name']}\" onClick=\"return false;\" />";
+				$tr.="<input type=\"button\" style=\"width:120px\" class=\"button\" value=\"&gt;{$data['name']}&lt;\" onClick=\"return false;\" />";
 				//$tr.="<u>{$data['name']}</u> | ";
 				else
 				$tr.="<input type=\"button\" style=\"width:120px\" class=\"button\" value=\"{$data['name']}\" onClick=\"window.location='?s={$id}&amp;m=".@$_GET['m']."'\" />";
 				//$tr.="<a href=\"?s={$id}&amp;m=".@$_GET['m']."\">{$data['name']}</a> | ";
+			}
+		}
+		if(count($this->tpl)>1){
+			$tr.="</form><pre/><h2>Themes</h2><form action=\"GET\">";
+			$t=$this->tpl;
+			foreach($t as $id =>$data){
+				if($_SESSION['tplsl']==$id)
+				$tr.="<input type=\"button\" style=\"width:120px\" class=\"button\" value=\"&gt;{$data['dname']}&lt;\" onClick=\"return false;\" />";
+				else
+				$tr.="<input type=\"button\" style=\"width:120px\" class=\"button\" value=\"{$data['dname']}\" onClick=\"window.location='?t={$id}&amp;m=".@$_GET['m']."'\" />";
 			}
 		}
 		$tpl->setParam('MOD_LINKS',$tr."</form>");
@@ -154,6 +194,53 @@ class subsystem
 		}else{
 			$_SESSION['SelectedServer']=0;
 		}
+	}
+	function xmlfix(){
+		if(is_array(@$this->xml['instances']))
+			$list_inst=@$this->xml['instances']['instance'];
+		else
+			$list_inst=array();
+		if(!is_array($list_inst) OR count($list_inst)<1)
+			$list_inst=array();
+		else{
+			if(!isset($list_inst[0]))$list_inst=array(0=>$list_inst);
+			usort($list_inst,"sortbyplayers");
+		}
+		if(!is_array($system->xml['instances']))
+		$this->xml['instances']=array();
+
+		$this->xml['instances']['instance']=$list_inst;
+
+		if(is_array(@$this->xml['gms']))
+			$list_gm=@$this->xml['gms']['gmplr'];
+			else
+			$list_gm=array();
+
+		if(!is_array($list_gm) OR count($list_gm)<1)
+			$list_gm=array();
+		else{
+			if(!isset($list_gm[0]))$list_gm=array(0=>$list_gm);
+			usort($list_gm,"sortbylevel");
+		}
+		if(!is_array($system->xml['gms']))
+		$this->xml['gms']=array();
+		$this->xml['gms']['gmplr']=$list_gm;
+
+		if(is_array(@$this->xml['sessions']))
+			$list_pl=@$this->xml['sessions']['plr'];
+		else
+			$list_pl=array();
+
+		if(!is_array($list_pl) OR count($list_pl)<1)
+		$list_pl=array();
+		else{
+			if(!isset($list_pl[0]))$list_pl=array(0=>$list_pl);
+			usort($list_pl,"sortbylevel");
+		}
+		if(!is_array($system->xml['sessions']))
+		$this->xml['sessions']=array();
+		$this->xml['sessions']['plr']=$list_pl;
+
 	}
 	function ns(){
 		global $_CONFIG;

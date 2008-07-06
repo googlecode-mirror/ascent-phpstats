@@ -5,11 +5,13 @@ function string_isEmail($string) {
 function string_count($str){
 	$str_num=0;
 	$str_word=0;
+	$str_unk=0;
 	for($i=0;$i<strlen($str);$i++){
 		if(ereg("^[a-zA-Z]",$str{$i})) $str_word++;
 		elseif(ereg("^[0-9]",$str{$i})) $str_num++;
+		else $str_unk++;
 	}
-	return array($str_num,$str_word);
+	return array($str_num,$str_word,$str_unk);
 }
 function CheckPassword($login,$password){
 	global $_CONFIG;

@@ -17,8 +17,10 @@ $_CONFIG['serv_names']=array("PvP","Normal");
 // Can be uses for disable vars in main page: array("gmcount"=>0)
 $_CONFIG['dis_status']=array(); 
 
+$_CONFIG['tpl_default']="classic";
+
 $_CONFIG['main_module']="onl";	//lnk module
-$_CONFIG['tpl']="./tpl/";                        //path to .tpl file
+$_CONFIG['tpl']="/tpl/";                        //path to .tpl file
 $_CONFIG['showgm']=true;
 $_CONFIG['force_gzip']=false;                    //Gzip-compression
 $_CONFIG['logo']='icon/logo.jpg';                // false - disable
